@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SushiVid HR Assistant</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  :root{
+    --red:#e8262c;
+    --black:#161616;
+    --grey:#f4f4f5;
+    --grey-dark:#6b6b70;
+    --border:#e4e4e7;
+    --white:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--grey);
+    color:var(--black);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  header{
+    background:var(--black);
+    color:var(--white);
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-shrink:0;
+  }
+  header .logo-dot{
+    width:34px;height:34px;border-radius:50%;
+    background:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:16px;flex-shrink:0;
+  }
+  header .title{display:flex;flex-direction:column;}
+  header .title strong{font-size:15px;}
+  header .title span{font-size:12px;color:#b8b8bc;}
+
+  .tabnav{
+    background:var(--white);
+    border-bottom:1px solid var(--border);
+    padding:10px 20px;
+    flex-shrink:0;
+  }
+  .tabnav-inner{
+    max-width:760px;
+    margin:0 auto;
+    display:flex;
+    gap:8px;
+  }
+  .tabbtn{
+    flex:1;
+    text-align:center;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--grey);
+    cursor:pointer;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--grey-dark);
+  }
+  .tabbtn.active{background:var(--black);color:var(--white);border-color:var(--black);}
+
+  .tabpanel{flex:1;overflow:hidden;display:none;flex-direction:column;}
+  .tabpanel.active{display:flex;}
+
+  #chat{
+    flex:1;
+    overflow-y:auto;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    max-width:720px;
+    width:100%;
+    margin:0 auto;
+  }
+  .msg{
+    max-width:82%;
+    padding:11px 15px;
+    border-radius:14px;
+    line-height:1.5;
+    font-size:14.5px;
+    white-space:pre-wrap;
+  }
+  .msg.bot{
+    background:var(--white);
+    border:1px solid var(--border);
+    align-self:flex-start;
+    border-bottom-left-radius:4px;
+  }
+  .msg.user{
+    background:var(--red);
+    color:var(--white);
+    align-self:flex-end;
+    border-bottom-right-radius:4px;
+  }
+  .msg.bot .src{
+    display:block;
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--grey-dark);
+  }
+  .msg.bot a{
+    color:var(--red);
+    font-weight:600;
+  }
+  .chips{
+    max-width:720px;
+    margin:0 auto;
+    width:100%;
+    padding:0 20px 12px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    flex-shrink:0;
+  }
+  .chip{
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:7px 13px;
+    font-size:13px;
+    cursor:pointer;
+    color:var(--black);
+    transition:background .15s;
+  }
+  .chip:hover{background:#f0f0f1;}
+  .chip.active{background:var(--black);color:var(--white);border-color:var(--black);}
+  #inputBar{
+    border-top:1px solid var(--border);
+    background:var(--white);
+    padding:14px 20px;
+    display:flex;
+    gap:10px;
+    max-width:720px;
+    width:100%;
+    margin:0 auto;
+    flex-shrink:0;
+  }
+  #inputBar input{
+    flex:1;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:14.5px;
+    outline:none;
+  }
+  #inputBar input:focus{border-color:var(--red);}
+  #inputBar button{
+    background:var(--red);
+    color:var(--white);
+    border:none;
+    border-radius:10px;
+    padding:0 20px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  #inputBar button:hover{opacity:0.9;}
+  .footNote{
+    text-align:center;
+    font-size:11px;
+    color:var(--grey-dark);
+    padding:6px 20px 14px;
+  }
+
+  /* --- Builder tab --- */
+  #tab-builder{overflow-y:auto;}
+  .builder-wrap{
+    max-width:720px;
+    margin:0 auto;
+    width:100%;
+    padding:20px 20px 40px;
+  }
+  .builder-wrap h3{
+    font-size:14px;
+    margin:22px 0 10px;
+    color:var(--black);
+    border-bottom:2px solid var(--red);
+    padding-bottom:6px;
+  }
+  .builder-wrap h3:first-child{margin-top:0;}
+  .grid2, .grid3{
+    display:grid;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .grid2{grid-template-columns:1fr 1fr;}
+  .grid3{grid-template-columns:2fr 0.6fr 1fr;}
+  label{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:12.5px;
+    color:var(--grey-dark);
+    font-weight:600;
+  }
+  label input, label select{
+    font-family:inherit;
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-size:13.5px;
+    color:var(--black);
+    background:var(--white);
+  }
+  label input:focus, label select:focus{outline:none;border-color:var(--red);}
+  .itemform{
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:14px;
+  }
+  .checkboxRow{
+    flex-direction:row;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    margin:6px 0 10px;
+  }
+  .checkboxRow input{width:auto;padding:0;}
+  .addBtn{
+    background:var(--black);
+    color:var(--white);
+    border:none;
+    border-radius:8px;
+    padding:9px 16px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .addBtn:hover{opacity:0.88;}
+  table#itemsTable{
+    width:100%;
+    border-collapse:collapse;
+    background:var(--white);
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+    font-size:13px;
+  }
+  table#itemsTable th, table#itemsTable td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+  }
+  table#itemsTable th{background:var(--grey);font-size:11.5px;text-transform:uppercase;color:var(--grey-dark);}
+  table#itemsTable tfoot td{border-bottom:none;background:var(--grey);}
+  .rmBtn{cursor:pointer;color:var(--red);font-weight:700;}
+  .actionsRow{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+    flex-wrap:wrap;
+  }
+  .primaryBtn, .secondaryBtn{
+    flex:1;
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+    min-width:200px;
+  }
+  .primaryBtn{background:var(--red);color:var(--white);}
+  .primaryBtn:hover{opacity:0.9;}
+  .secondaryBtn{background:var(--white);color:var(--black);border:1px solid var(--border);}
+  .secondaryBtn:hover{background:#f0f0f1;}
+  .smallNote{
+    font-size:11.5px;
+    color:var(--grey-dark);
+    margin-top:12px;
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-dot">S</div>
+  <div class="title">
+    <strong>SushiVid HR Assistant</strong>
+    <span>Ask a question, or get your invoice/OT/expense claim filled in for you</span>
+  </div>
+</header>
+
+<div class="tabnav">
+  <div class="tabnav-inner">
+    <div class="tabbtn active" id="navAsk" onclick="showTab('ask')">Ask HR</div>
+    <div class="tabbtn" id="navBuilder" onclick="showTab('builder')">Fill My Invoice / Claim</div>
+  </div>
+</div>
+
+<div id="tab-ask" class="tabpanel active">
+  <div id="chat"></div>
+  <div class="chips" id="chips"></div>
+  <div id="inputBar">
+    <input type="text" id="questionInput" placeholder="e.g. What's the overtime rate?" autocomplete="off">
+    <button id="sendBtn">Send</button>
+  </div>
+  <div class="footNote">Answers are based on SushiVid's HR policy &amp; regulations doc. For anything not covered here, or your specific case, reach out to HR directly.</div>
+</div>
+
+<div id="tab-builder" class="tabpanel">
+  <div class="builder-wrap">
+
+    <h3>Your Details</h3>
+    <div class="grid2">
+      <label>Your Name<input id="inv_name" type="text" placeholder="e.g. Chua Rong Li"></label>
+      <label>Role / Department<input id="inv_role" type="text" placeholder="e.g. Marketing Executive"></label>
+      <label>Invoice No<input id="inv_no" type="text" value="1"></label>
+      <label>Invoice Date<input id="inv_date" type="date"></label>
+    </div>
+
+    <h3>Bank Details (for payment)</h3>
+    <div class="grid2">
+      <label>Account Name<input id="inv_bankAccName" type="text" placeholder="Defaults to your name"></label>
+      <label>Account Number<input id="inv_accNo" type="text"></label>
+      <label>Bank Name<input id="inv_bankName" type="text"></label>
+      <label>Branch (optional)<input id="inv_branch" type="text" value="NA"></label>
+      <label>SWIFT Code (optional)<input id="inv_swift" type="text" value="NA"></label>
+    </div>
+
+    <h3>Add Line Items</h3>
+    <div class="chips" id="itemTypeChips" style="padding:0 0 12px;max-width:none;">
+       <div class="chip active" data-type="general">General Item</div>
+       <div class="chip" data-type="ot">Overtime Claim</div>
+       <div class="chip" data-type="expense">Expense Claim</div>
+    </div>
+
+    <div id="form-general" class="itemform">
+       <div class="grid3">
+         <label>Description<input id="g_desc" type="text" placeholder="e.g. Intern Fee for June 2026"></label>
+         <label>Qty<input id="g_qty" type="number" value="1" min="0" step="1"></label>
+         <label>Unit Price (RM)<input id="g_price" type="number" step="0.01"></label>
+       </div>
+       <button class="addBtn" onclick="addGeneralItem()">+ Add Item</button>
+    </div>
+
+    <div id="form-ot" class="itemform" style="display:none">
+       <label style="margin-bottom:10px;">OT Type
+        <select id="ot_type" onchange="toggleMealRow()">
+          <option value="office">Office-based (RM20/hr after 7:30 PM)</option>
+          <option value="event">Event / Campaign - off-site (RM100 per 3-hr block)</option>
+          <option value="holiday">Weekend / Public Holiday (RM100 per 3-hr block)</option>
+        </select>
+       </label>
+       <div class="grid2">
+         <label>Campaign / Event Name<input id="ot_event" type="text" placeholder="e.g. Social Media Campaign X"></label>
+         <label>Task Performed<input id="ot_task" type="text" placeholder="e.g. Content creation"></label>
+         <label>Date<input id="ot_date" type="date"></label>
+         <label>Hours Worked<input id="ot_hours" type="number" step="0.5" min="0" placeholder="excl. travel time"></label>
+       </div>
+       <label class="checkboxRow" id="ot_mealRow"><input type="checkbox" id="ot_meal"> Worked past 8:30 PM (adds RM20 meal claim)</label>
+       <button class="addBtn" onclick="addOTItem()">+ Add OT Claim</button>
+    </div>
+
+    <div id="form-expense" class="itemform" style="display:none">
+       <label style="margin-bottom:10px;">Expense Type
+        <select id="exp_type" onchange="renderExpenseFields()">
+          <option value="ehailing">E-hailing (Grab Economy/Comfort, Just Grab)</option>
+          <option value="mileage">Local Mileage - KL &amp; Selangor (RM0.50/km)</option>
+          <option value="fuel">Fuel - Out of state (full tank, itemised receipt)</option>
+          <option value="meal">Meal Claim (non-OT, capped RM20)</option>
+        </select>
+       </label>
+       <div id="exp_fields" class="grid2"></div>
+       <button class="addBtn" onclick="addExpenseItem()">+ Add Expense</button>
+    </div>
+
+    <h3>Items on This Invoice</h3>
+    <table id="itemsTable">
+      <thead><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th><th></th></tr></thead>
+      <tbody id="itemsBody"></tbody>
+      <tfoot><tr><td colspan="4" style="text-align:right;font-weight:700;">GRAND TOTAL (RM)</td><td id="grandTotal" style="font-weight:700;">0.00</td><td></td></tr></tfoot>
+    </table>
+
+    <div class="actionsRow">
+      <button class="primaryBtn" onclick="downloadInvoice()">Download Filled Invoice (PDF)</button>
+      <button class="secondaryBtn" onclick="draftEmail()">Draft Email to Armand</button>
+    </div>
+    <p class="smallNote">This fills in the official SushiVid invoice format automatically, with amounts calculated from current policy rates — no blank template to figure out. Just double-check the numbers, then email it to armand@sushivid.com (cc your team lead) before month-end. Payment goes out on the last day of the month (allow 1-2 days processing buffer).</p>
+  </div>
+</div>
+
+<script>
+// ---------------------------------------------------------------------
+// POLICY RATES — single source of truth for both the chat answers and
+// the auto-fill calculators below. Update here if company policy changes.
+// ---------------------------------------------------------------------
+const RATES = {
+  officeOTPerHour: 20,
+  eventOTPer3hrBlock: 100,
+  mealClaim: 20,
+  localMileagePerKm: 0.5
+};
+
+// ---------------------------------------------------------------------
+// KNOWLEDGE BASE
+// Add new entries here as more policies / templates come in.
+// Each entry: keywords (for matching) + answer (shown to user) + source note
+// ---------------------------------------------------------------------
+const KB = [
+  {
+    keywords: ["overtime","ot","rate","per hour","hourly","extra hours","late night","office ot","office-based"],
+    answer: "Office-based OT: RM20/hour after 7:30 PM (excludes non-standard schedules).\nEvent-based OT (off-site work, e.g. campaigns): RM100 per 3-hour block, prorated for partial hours — travel time doesn't count.\nNo OT is claimable for WFH, unless it's been expressly pre-approved in writing by your manager.\nHead to the \"Fill My Invoice / Claim\" tab and I'll calculate the amount for you.",
+    source: "Overtime (OT) Compensation"
+  },
+  {
+    keywords: ["meal claim","dinner","food claim","late meal","past 8:30","working late meal"],
+    answer: "If you work past 8:30 PM, you're entitled to a RM20 meal claim. You'll need an itemised receipt (or your team lead can claim on your behalf).",
+    source: "Overtime (OT) Compensation"
+  },
+  {
+    keywords: ["weekend","public holiday work","holiday work","campaign work","rotational","shift"],
+    answer: "Work on weekends or public holidays for marketing campaigns is assigned on a rotational basis. You either comply with the assigned shift or arrange a replacement (subject to manager approval). It's compensated at RM100 per 3-hour block, or via time-in-lieu, as mutually agreed.",
+    source: "Weekend, Weekday and Public Holiday Work"
+  },
+  {
+    keywords: ["working hours","office hours","start time","end time","lunch","core hours","schedule"],
+    answer: "Standard hours are Monday–Friday, 9:00 AM–6:00 PM, with lunch from 12:30–1:30 PM.\nYou can request a permanent shift to different Core Hours (e.g. 7:30 AM–4:30 PM) via written notice to HR and your manager — this needs prior approval and can be revised every 6 months.",
+    source: "Working Hours"
+  },
+  {
+    keywords: ["wfh","work from home","remote","remote work"],
+    answer: "WFH is allowed at your manager's discretion, and requires: a dedicated workspace, stable internet (min 10Mbps), a company-issued laptop only, and a quiet professional environment. The company can revoke WFH privileges or require office attendance at any time.\nNote: no OT is payable for remote work unless pre-approved in writing by your manager.",
+    source: "Place of Work"
+  },
+  {
+    keywords: ["probation","probationary period","new hire period"],
+    answer: "Probation is 3 months from your start date. During probation, either party can end the contract with 14 calendar days' written notice.",
+    source: "Probation Period"
+  },
+  {
+    keywords: ["resign","resignation","quit","notice period","termination notice","terminate"],
+    answer: "During probation: 2 weeks' notice (or pay in lieu) from either party.\nAfter confirmation: 1 month's notice (or pay in lieu of notice) from either party, no reason required.",
+    source: "Termination / Resignation"
+  },
+  {
+    keywords: ["annual leave","vacation","time off","pto","leave days","how many leave"],
+    answer: "14 working days of annual leave per year. Applications must go to your Head of Department at least 1 week before the leave starts.\nUnused leave is forfeited on 1 January the following year — no payout, except in cases of resignation, dismissal, retirement, or retrenchment (prorated payment may apply). Leave accumulation is possible only with written request and company approval.",
+    source: "Annual Leave"
+  },
+  {
+    keywords: ["apply for leave","leave application","how to apply leave","request leave","how do i apply","email for leave","leave approval","book leave"],
+    answer: "Email armand@sushivid.com and cc your team lead to apply for leave.\nImportant: approval is not automatic. Do not assume your leave is approved until you hear back. Any flights or hotels you book ahead of approval are booked at your own risk — if the leave isn't approved, that's on you.",
+    source: "Leave Application Process"
+  },
+  {
+    keywords: ["sick leave","mc","medical certificate","sick day"],
+    answer: "14 days of paid sick leave per year (for employees with under 2 years of service), certified by the company's panel of doctors.",
+    source: "Sick Leave"
+  },
+  {
+    keywords: ["hospitalization","hospital leave","hospitalisation","surgery leave"],
+    answer: "Up to 60 continuous calendar days of paid leave per year if hospitalization is certified by the company doctor (inclusive of any non-hospitalized recovery days). A hospital Medical Certificate is required.",
+    source: "Hospitalization Leave"
+  },
+  {
+    keywords: ["maternity","maternity leave","pregnant","give birth","confinement"],
+    answer: "98 consecutive days of fully paid maternity leave, for up to 5 surviving confinements. You need at least 90 days of service in the 9 months before confinement, and should notify the company 2 months before your leave starts. A Medical Certificate is required.",
+    source: "Maternity Leave"
+  },
+  {
+    keywords: ["paternity","paternity leave","new dad","spouse giving birth"],
+    answer: "7 consecutive days of paid paternity leave per childbirth (up to 5 confinements), for male employees with at least 12 months of service. Notify the company 1 month in advance.",
+    source: "Paternity Leave"
+  },
+  {
+    keywords: ["compassionate leave","bereavement","death in family","funeral"],
+    answer: "2 days of compassionate leave for the bereavement of immediate family (spouse, children, parents, parents-in-law, grandparents).",
+    source: "Compassionate Leave"
+  },
+  {
+    keywords: ["marriage leave","wedding leave","getting married"],
+    answer: "2 days of marriage leave, for your first legal marriage.",
+    source: "Marriage Leave"
+  },
+  {
+    keywords: ["unpaid leave","leave without pay"],
+    answer: "Unpaid leave may be granted at the company's discretion, in exceptional circumstances, once you've used up your annual leave — and only if it doesn't disrupt office operations.",
+    source: "Unpaid Leave"
+  },
+  {
+    keywords: ["public holiday","gazetted holiday","holiday saturday"],
+    answer: "Paid holidays follow gazetted public holidays set by the Malaysian Federal or Selangor State Government. If a holiday falls on a Saturday, no additional day off is given.",
+    source: "Gazetted Public Holiday"
+  },
+  {
+    keywords: ["e-hailing","grab claim","grab","taxi claim","ride claim"],
+    answer: "Lowest/mid-tier rides only (e.g. Grab Economy/Comfort/Just Grab). You need a screenshot showing fare, time, and route. Out-of-state e-hailing is not allowed.\nHead to the \"Fill My Invoice / Claim\" tab to add this as a claim and I'll do the math.",
+    source: "Transport & Travel Reimbursements"
+  },
+  {
+    keywords: ["fuel claim","petrol","mileage","driving claim","travel reimbursement"],
+    answer: "Neighbouring states (Pahang, Seremban, Perak, Melaka): 1 full tank. Further states (Kedah, Terengganu, Kelantan, Johor): 2 full tanks. Receipts need date, station location, odometer reading, and amount.\nLocal mileage (KL & Selangor only, personal vehicle): RM0.50/km.\nHead to the \"Fill My Invoice / Claim\" tab and I'll calculate your mileage claim for you.",
+    source: "Transport & Travel Reimbursements"
+  },
+  {
+    keywords: ["claim deadline","submit claim","when to submit","late claim","claim cutoff"],
+    answer: "Submit claims by the 15th of the following month. Claims submitted after that are forfeited (per the OT travel policy) or carried forward to the next month (per the general transport policy) — check with HR on which applies to your claim type. Claims missing required proof (e.g. odometer readings, receipts) will be rejected.",
+    source: "Penalties & Forfeitures / Deadlines"
+  },
+  {
+    keywords: ["medical allowance","medical benefit","medical expenses","insurance","flu vaccine","flu vaccination"],
+    answer: "RM200/month Medical Allowance is included in your monthly pay — no further medical expense claims beyond this. Flu vaccination: 1 claim per year, capped at RM200 (receipt required). The company also provides hospitalization/surgical insurance; inform HR before a consultation (except emergencies) to confirm insurance coverage.",
+    source: "Medical Benefits"
+  },
+  {
+    keywords: ["increment","bonus","raise","pay rise","salary increase"],
+    answer: "Increments and bonuses are entirely at the company's discretion.",
+    source: "Increment and Bonus"
+  },
+  {
+    keywords: ["pip","performance improvement","underperforming","performance plan"],
+    answer: "A Performance Improvement Programme (PIP) may be activated for employees consistently underperforming. It's a confidential process involving the employee, Team Lead, and HR, with a 30/60/90-day timeline depending on role/seniority. If there's no satisfactory improvement, it can lead to termination.",
+    source: "Performance Improvement Programme (PIP)"
+  },
+  {
+    keywords: ["transfer","department transfer","move department","relocate team"],
+    answer: "The company has the right to transfer employees between departments, or between companies within the group.",
+    source: "Interdepartment Transfer"
+  },
+  {
+    keywords: ["socso","epf","kwsp","statutory contribution"],
+    answer: "SOCSO and EPF contributions are duly deducted and paid by the company.",
+    source: "Other Benefits"
+  },
+  {
+    keywords: ["side business","other job","freelance","conflict of interest","moonlighting"],
+    answer: "You can't be engaged directly or indirectly in another business without the company's prior written consent — especially anything that could conflict with or interfere with your role here.",
+    source: "Other Business"
+  },
+  {
+    keywords: ["tax","lhdn","income tax claims"],
+    answer: "All expense reimbursements are subject to income tax under LHDN regulations.",
+    source: "Documentation & Compliance"
+  },
+  {
+    keywords: ["invoice","submit invoice","invoice template","freelance invoice","contractor invoice","intern invoice","how to invoice","invoicing"],
+    answer: "Most employees on contract, freelance, or internship terms are required to submit a monthly invoice to get paid.\nEasiest way: go to the \"Fill My Invoice / Claim\" tab above — fill in your details and line items, and I'll generate the completed invoice for you (no blank template needed). Then email it to armand@sushivid.com (cc your team lead).",
+    source: "Invoicing",
+    html: true
+  },
+  {
+    keywords: ["log overtime","key in overtime","overtime form","record overtime","overtime event name","campaign name for ot","how to submit overtime","campaign name","event name","key in","keyed in"],
+    answer: "When keying in any overtime, you must include the event name or campaign name it relates to — OT without this won't be processed.\nUse the \"Fill My Invoice / Claim\" tab and I'll build the line item (with amount calculated) for you automatically.",
+    source: "Overtime (OT) Compensation"
+  },
+  {
+    keywords: ["when do i get paid","payment date","payday","salary date","payment schedule","when is payday","when is salary","get paid","paid on","pay day","pay date","when paid","when will i be paid"],
+    answer: "Payment is made on the last day of every month. Give it 1-2 days of processing buffer, especially if Wen is out of the country and can't approve on time.",
+    source: "Payment Schedule"
+  }
+];
+
+const FALLBACK = "I don't have a solid answer for that in the current policy doc — best to check directly with HR. (If you think this is something that should be documented, let HR know so it can be added here!)";
+
+const STOPWORDS = new Set(["what","is","the","a","an","do","does","how","much","many","can","i","my","for","of","to","in","on","at","are","am","will","be","get","if","and","or","need","should","claim","claims","policy","about","me","please","tell","know","much's","whats"]);
+
+function tokenize(str){
+  return str.toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w => w && !STOPWORDS.has(w));
+}
+
+function scoreEntry(entry, queryTokens, rawQuery){
+  let score = 0;
+  const lowerQuery = rawQuery.toLowerCase();
+  entry.keywords.forEach(kw => {
+    if(lowerQuery.includes(kw.toLowerCase())){
+      score += kw.split(" ").length * 3; // multi-word phrase match is a strong signal
+    }
+  });
+  const kwTokens = entry.keywords.join(" ").toLowerCase().split(/\s+/);
+  queryTokens.forEach(qt => {
+    if(kwTokens.includes(qt)) score += 1;
+  });
+  return score;
+}
+
+function findAnswer(question){
+  const tokens = tokenize(question);
+  let best = null, bestScore = 0;
+  KB.forEach(entry => {
+    const s = scoreEntry(entry, tokens, question);
+    if(s > bestScore){ bestScore = s; best = entry; }
+  });
+  if(best && bestScore >= 2) return best;
+  return null;
+}
+
+// ---------------------------------------------------------------------
+// TAB SWITCHING
+// ---------------------------------------------------------------------
+function showTab(name){
+  document.getElementById("tab-ask").classList.toggle("active", name === "ask");
+  document.getElementById("tab-builder").classList.toggle("active", name === "builder");
+  document.getElementById("navAsk").classList.toggle("active", name === "ask");
+  document.getElementById("navBuilder").classList.toggle("active", name === "builder");
+}
+
+// ---------------------------------------------------------------------
+// CHAT UI
+// ---------------------------------------------------------------------
+const chatEl = document.getElementById("chat");
+const inputEl = document.getElementById("questionInput");
+const sendBtn = document.getElementById("sendBtn");
+const chipsEl = document.getElementById("chips");
+
+const SUGGESTIONS = [
+  "What's the overtime rate?",
+  "How many annual leave days do I get?",
+  "How do I apply for leave?",
+  "Do I need to submit an invoice?",
+  "When do I get paid?",
+  "What's the claim deadline?",
+  "What's the WFH policy?"
+];
+
+function escapeHtml(str){
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function addMessage(text, who, source, isHtml){
+  const div = document.createElement("div");
+  div.className = "msg " + who;
+  if(isHtml){
+    // text is trusted (comes from our own KB, not user input) so newlines -> <br>
+    div.innerHTML = text.replace(/\n/g, "<br>");
+  } else {
+    div.textContent = text;
+  }
+  if(source){
+    const src = document.createElement("span");
+    src.className = "src";
+    src.textContent = "Source: " + source;
+    div.appendChild(src);
+  }
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function handleAsk(question){
+  if(!question.trim()) return;
+  addMessage(question, "user");
+  inputEl.value = "";
+  const match = findAnswer(question);
+  setTimeout(() => {
+    if(match){
+      addMessage(match.answer, "bot", match.source, !!match.html);
+    } else {
+      addMessage(FALLBACK, "bot");
+    }
+  }, 250);
+}
+
+function renderChips(){
+  chipsEl.innerHTML = "";
+  SUGGESTIONS.forEach(s => {
+    const c = document.createElement("div");
+    c.className = "chip";
+    c.textContent = s;
+    c.onclick = () => handleAsk(s);
+    chipsEl.appendChild(c);
+  });
+}
+
+sendBtn.onclick = () => handleAsk(inputEl.value);
+inputEl.addEventListener("keydown", e => { if(e.key === "Enter") handleAsk(inputEl.value); });
+
+addMessage("Hi! I'm the SushiVid HR Assistant. Ask me things like overtime rates, leave entitlements, claim deadlines, invoicing, or WFH rules — pulled straight from the company policy doc.", "bot");
+renderChips();
+
+// ---------------------------------------------------------------------
+// INVOICE / CLAIM BUILDER
+// ---------------------------------------------------------------------
+let items = [];
+
+document.querySelectorAll("#itemTypeChips .chip").forEach(chip => {
+  chip.onclick = () => {
+    document.querySelectorAll("#itemTypeChips .chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    const type = chip.dataset.type;
+    document.getElementById("form-general").style.display = type === "general" ? "block" : "none";
+    document.getElementById("form-ot").style.display = type === "ot" ? "block" : "none";
+    document.getElementById("form-expense").style.display = type === "expense" ? "block" : "none";
+  };
+});
+
+function toggleMealRow(){
+  const type = document.getElementById("ot_type").value;
+  document.getElementById("ot_mealRow").style.display = type === "office" ? "flex" : "none";
+}
+
+function renderExpenseFields(){
+  const type = document.getElementById("exp_type").value;
+  const c = document.getElementById("exp_fields");
+  if(type === "ehailing"){
+    c.innerHTML = `
+      <label>Date<input id="exp_date" type="date"></label>
+      <label>Route / Purpose<input id="exp_purpose" type="text" placeholder="e.g. Office to client meeting"></label>
+      <label>Fare Amount (RM)<input id="exp_amount" type="number" step="0.01"></label>
+    `;
+  } else if(type === "mileage"){
+    c.innerHTML = `
+      <label>Date<input id="exp_date" type="date"></label>
+      <label>Purpose<input id="exp_purpose" type="text"></label>
+      <label>KM Driven<input id="exp_km" type="number" step="0.1"></label>
+    `;
+  } else if(type === "fuel"){
+    c.innerHTML = `
+      <label>Date<input id="exp_date" type="date"></label>
+      <label>Location / State<input id="exp_purpose" type="text"></label>
+      <label>Receipt Amount (RM)<input id="exp_amount" type="number" step="0.01"></label>
+    `;
+  } else if(type === "meal"){
+    c.innerHTML = `
+      <label>Date<input id="exp_date" type="date"></label>
+      <label>Receipt Amount (RM, max 20)<input id="exp_amount" type="number" step="0.01" max="20"></label>
+    `;
+  }
+}
+
+function addGeneralItem(){
+  const desc = document.getElementById("g_desc").value.trim();
+  const qty = parseFloat(document.getElementById("g_qty").value) || 0;
+  const price = parseFloat(document.getElementById("g_price").value) || 0;
+  if(!desc || !price){ alert("Add a description and unit price."); return; }
+  items.push({ description: desc, qty, unitPrice: price });
+  document.getElementById("g_desc").value = "";
+  document.getElementById("g_price").value = "";
+  renderItems();
+}
+
+function addOTItem(){
+  const type = document.getElementById("ot_type").value;
+  const event = document.getElementById("ot_event").value.trim();
+  const task = document.getElementById("ot_task").value.trim();
+  const date = document.getElementById("ot_date").value;
+  const hours = parseFloat(document.getElementById("ot_hours").value) || 0;
+  if(!event || !task || !hours){ alert("Fill in campaign/event name, task performed, and hours worked."); return; }
+
+  if(type === "office"){
+    items.push({ description: `Office OT - ${event}: ${task} (${date || "date TBC"}, ${hours}h after 7:30PM)`, qty: hours, unitPrice: RATES.officeOTPerHour });
+    if(document.getElementById("ot_meal").checked){
+      items.push({ description: `Meal claim (OT past 8:30PM) - ${date || "date TBC"}`, qty: 1, unitPrice: RATES.mealClaim });
+    }
+  } else {
+    const blocks = hours / 3;
+    const amount = +(blocks * RATES.eventOTPer3hrBlock).toFixed(2);
+    const label = type === "event" ? "Event OT" : "Weekend/Holiday OT";
+    items.push({ description: `${label} - ${event}: ${task} (${date || "date TBC"}, ${hours}h)`, qty: 1, unitPrice: amount });
+  }
+
+  document.getElementById("ot_event").value = "";
+  document.getElementById("ot_task").value = "";
+  document.getElementById("ot_hours").value = "";
+  document.getElementById("ot_meal").checked = false;
+  renderItems();
+}
+
+function addExpenseItem(){
+  const type = document.getElementById("exp_type").value;
+  const date = document.getElementById("exp_date")?.value || "";
+  const purpose = document.getElementById("exp_purpose")?.value?.trim() || "";
+  let description, unitPrice = 0;
+  const qty = 1;
+
+  if(type === "ehailing"){
+    unitPrice = parseFloat(document.getElementById("exp_amount").value) || 0;
+    description = `E-hailing - ${purpose || "trip"} (${date || "date TBC"})`;
+  } else if(type === "mileage"){
+    const km = parseFloat(document.getElementById("exp_km").value) || 0;
+    unitPrice = +(km * RATES.localMileagePerKm).toFixed(2);
+    description = `Local mileage - ${purpose || "travel"} (${date || "date TBC"}, ${km}km @ RM${RATES.localMileagePerKm.toFixed(2)}/km)`;
+  } else if(type === "fuel"){
+    unitPrice = parseFloat(document.getElementById("exp_amount").value) || 0;
+    description = `Fuel (out-of-state) - ${purpose || "trip"} (${date || "date TBC"})`;
+  } else if(type === "meal"){
+    unitPrice = Math.min(parseFloat(document.getElementById("exp_amount").value) || 0, 20);
+    description = `Meal claim (${date || "date TBC"})`;
+  }
+
+  if(!unitPrice){ alert("Enter the claim amount."); return; }
+  items.push({ description, qty, unitPrice });
+  renderItems();
+}
+
+function removeItem(i){
+  items.splice(i, 1);
+  renderItems();
+}
+
+function renderItems(){
+  const body = document.getElementById("itemsBody");
+  body.innerHTML = "";
+  let total = 0;
+  items.forEach((it, i) => {
+    const amount = +(it.qty * it.unitPrice).toFixed(2);
+    total += amount;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i + 1}</td><td>${escapeHtml(it.description)}</td><td>${it.qty}</td><td>${it.unitPrice.toFixed(2)}</td><td>${amount.toFixed(2)}</td><td><span class="rmBtn" onclick="removeItem(${i})">&times;</span></td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById("grandTotal").textContent = total.toFixed(2);
+}
+
+function getInvoiceState(){
+  return {
+    name: document.getElementById("inv_name").value.trim(),
+    role: document.getElementById("inv_role").value.trim(),
+    invoiceNo: document.getElementById("inv_no").value.trim(),
+    invoiceDate: document.getElementById("inv_date").value,
+    bankAccName: document.getElementById("inv_bankAccName").value.trim(),
+    accountNumber: document.getElementById("inv_accNo").value.trim(),
+    bankName: document.getElementById("inv_bankName").value.trim(),
+    branch: document.getElementById("inv_branch").value.trim(),
+    swift: document.getElementById("inv_swift").value.trim()
+  };
+}
+
+function computeItemTotal(){
+  let total = 0;
+  items.forEach(it => total += it.qty * it.unitPrice);
+  return +total.toFixed(2);
+}
+
+function downloadTextFallback(s, total){
+  // Used only if the PDF library couldn't load (e.g. no internet access)
+  const lines = [
+    "INVOICE", "",
+    "Company name: SushiVid Sdn Bhd",
+    "Address: 44A, Jalan 52/4, 46200 Petaling Jaya, Selangor",
+    "Email: armand@sushivid.com", "",
+    `Invoice No: ${s.invoiceNo}    Date: ${s.invoiceDate}`,
+    `Your Name: ${s.name}    Role: ${s.role}`, "",
+    "No | Description | Qty | Unit Price (RM) | Amount (RM)"
+  ];
+  items.forEach((it, i) => {
+    const amt = (it.qty * it.unitPrice).toFixed(2);
+    lines.push(`${i + 1} | ${it.description} | ${it.qty} | ${it.unitPrice.toFixed(2)} | ${amt}`);
+  });
+  lines.push("", `GRAND TOTAL (MYR): ${total.toFixed(2)}`, "",
+    "Payment Terms: Please issue transfer to:",
+    `Name: ${s.bankAccName || s.name}`,
+    `Account Number: ${s.accountNumber}`,
+    `Bank name: ${s.bankName}`,
+    `Branch: ${s.branch || "NA"}`,
+    `SWIFT Code: ${s.swift || "NA"}`, "",
+    "* This is a computer generated invoice and no signature is required."
+  );
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `Invoice_${(s.name || "draft").replace(/\s+/g, "_")}_${s.invoiceDate || ""}.txt`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function downloadInvoice(){
+  if(items.length === 0){ alert("Add at least one line item first."); return; }
+  const s = getInvoiceState();
+  if(!s.name){ alert("Please enter your name."); return; }
+  const total = computeItemTotal();
+
+  if(!window.jspdf){
+    downloadTextFallback(s, total);
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const marginX = 40;
+  const pageRight = 555;
+  let y = 50;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.setTextColor(22, 22, 22);
+  doc.text("INVOICE", marginX, y);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(107, 107, 112);
+  y += 18;
+  doc.text("SushiVid Sdn Bhd", marginX, y); y += 12;
+  doc.text("44A, Jalan 52/4, 46200 Petaling Jaya, Selangor", marginX, y); y += 12;
+  doc.text("armand@sushivid.com", marginX, y);
+
+  let ry = 50;
+  doc.setTextColor(22, 22, 22);
+  doc.text(`Invoice No: ${s.invoiceNo || ""}`, pageRight, ry, { align: "right" }); ry += 14;
+  doc.text(`Date: ${s.invoiceDate || ""}`, pageRight, ry, { align: "right" }); ry += 14;
+  doc.text("Page: 1 of 1", pageRight, ry, { align: "right" });
+
+  y += 28;
+  doc.setDrawColor(228, 228, 231);
+  doc.line(marginX, y, pageRight, y);
+  y += 22;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text(`Bill From: ${s.name}`, marginX, y);
+  y += 14;
+  doc.setFont("helvetica", "normal");
+  doc.text(`Role / Department: ${s.role || ""}`, marginX, y);
+  y += 18;
+
+  const body = items.map((it, i) => {
+    const amt = (it.qty * it.unitPrice).toFixed(2);
+    return [i + 1, it.description, it.qty, `RM ${it.unitPrice.toFixed(2)}`, `RM ${amt}`];
+  });
+
+  doc.autoTable({
+    startY: y,
+    head: [["No", "Description", "Qty", "Unit Price", "Amount"]],
+    body,
+    theme: "grid",
+    headStyles: { fillColor: [22, 22, 22], textColor: 255, fontSize: 9 },
+    bodyStyles: { fontSize: 9, textColor: [22, 22, 22] },
+    columnStyles: { 0: { cellWidth: 26 }, 2: { cellWidth: 36 }, 3: { cellWidth: 80 }, 4: { cellWidth: 80 } },
+    margin: { left: marginX, right: 40 }
+  });
+
+  let ay = doc.lastAutoTable.finalY + 20;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text(`GRAND TOTAL (MYR): RM ${total.toFixed(2)}`, pageRight, ay, { align: "right" });
+
+  ay += 28;
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("Payment Terms:", marginX, ay); ay += 14;
+  doc.setFont("helvetica", "normal");
+  doc.text("Please issue transfer to:", marginX, ay); ay += 14;
+  doc.text(`Name: ${s.bankAccName || s.name}`, marginX, ay); ay += 14;
+  doc.text(`Account Number: ${s.accountNumber || ""}`, marginX, ay); ay += 14;
+  doc.text(`Bank name: ${s.bankName || ""}`, marginX, ay); ay += 14;
+  doc.text(`Branch: ${s.branch || "NA"}`, marginX, ay); ay += 14;
+  doc.text(`SWIFT Code: ${s.swift || "NA"}`, marginX, ay); ay += 24;
+
+  doc.setFontSize(8);
+  doc.setTextColor(107, 107, 112);
+  doc.text("* This is a computer generated invoice and no signature is required.", marginX, ay);
+  ay += 12;
+  doc.text("Generated via SushiVid HR Assistant.", marginX, ay);
+
+  doc.save(`Invoice_${(s.name || "draft").replace(/\s+/g, "_")}_${s.invoiceDate || ""}.pdf`);
+}
+
+function draftEmail(){
+  const s = getInvoiceState();
+  if(items.length === 0){ alert("Add at least one line item first."); return; }
+  let total = 0;
+  const lines = items.map(it => {
+    const amt = +(it.qty * it.unitPrice).toFixed(2);
+    total += amt;
+    return `- ${it.description}: ${it.qty} x RM${it.unitPrice.toFixed(2)} = RM${amt.toFixed(2)}`;
+  });
+  total = +total.toFixed(2);
+  const subject = encodeURIComponent(`Invoice - ${s.name || "Name"} - ${s.invoiceDate || ""}`);
+  const body = encodeURIComponent([
+    `Hi Armand,`, ``,
+    `Please find my invoice details below (see attached file):`, ``,
+    ...lines, ``,
+    `Grand Total: RM${total.toFixed(2)}`, ``,
+    `(Remember to cc your team lead before sending!)`, ``,
+    `Thanks,`,
+    s.name || ""
+  ].join("\n"));
+  window.location.href = `mailto:armand@sushivid.com?subject=${subject}&body=${body}`;
+}
+
+// defaults
+document.getElementById("inv_date").value = new Date().toISOString().slice(0, 10);
+renderExpenseFields();
+renderItems();
+</script>
+
+</body>
+</html>
