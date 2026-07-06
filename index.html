@@ -1442,34 +1442,15 @@ function builderOTPostBaseSteps(o){
     }
   }
   if(o.type === "holiday" || (o.type === "event" && o.isWeekend)){
-    builderAskDayLength(o);
-    return;
+    // Half day / full day is decided automatically from the hours already
+    // given (excluding travel time) — under 4 hours is a half day (RM100),
+    // 4 hours or more is a full day (RM200). No need to ask separately.
+    o.dayLength = o.hours < 4 ? "half" : "full";
   }
   builderAskOTTransport(o);
 }
 
 let builderPendingOT = null;
-
-// Weekend/Public Holiday OT (and Event OT that fell on a weekend) is a
-// simple flat rate: half day or full day, rather than an hourly tier —
-// easier for everyone to reason about than exact hour thresholds.
-function builderAskDayLength(o){
-  builderPendingOT = o;
-  postBuilderHTML(`
-    <p>Was this a half day or full day (excluding travel time)?</p>
-    <div class="onboard-btn-row">
-      <button class="onboard-btn" onclick="builderDayLengthAnswer('half')">Half day (RM100)</button>
-      <button class="onboard-btn secondary" onclick="builderDayLengthAnswer('full')">Full day (RM200)</button>
-    </div>
-  `);
-}
-
-function builderDayLengthAnswer(length){
-  postBuilderHTML(length === "half" ? "Half day (RM100)" : "Full day (RM200)", "user");
-  const o = builderPendingOT;
-  o.dayLength = length;
-  builderAskOTTransport(o);
-}
 
 function builderAskOTTransport(o){
   builderPendingOT = o;
