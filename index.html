@@ -901,6 +901,55 @@ const builderChat = document.getElementById("builderChat");
 const builderInputEl = document.getElementById("builderInput");
 const builderSendBtn = document.getElementById("builderSendBtn");
 const PROFILE_KEY = "sushivid_invoice_profile_v1";
+const PIN_KEY = "sushivid_invoice_pin_v1";
+
+// ---------------------------------------------------------------------
+// CENTRAL SHEET SYNC (optional) — if Wen has deployed the companion
+// Google Apps Script (see setup instructions), profiles sync to a shared
+// Google Sheet so employees don't need to re-enter their bank details on
+// a different device/browser. Until SHEET_API_URL is filled in below,
+// everything falls back to the original device-only (localStorage) save.
+// A shared team PIN gates every read/write so a random visitor with the
+// page's URL can't pull or overwrite anyone's bank/IC details.
+// ---------------------------------------------------------------------
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwq6prAjHmZCgLFajbpQdzrtvQPrO2_B8s8ik4JqgXVWyk7K3_c3FJdemTIiFTu4YQI/exec";
+
+function sheetConfigured(){
+  return SHEET_API_URL && !SHEET_API_URL.includes("PASTE_YOUR");
+}
+function getSavedPin(){
+  try { return localStorage.getItem(PIN_KEY) || ""; } catch(e){ return ""; }
+}
+function savePin(pin){
+  try { localStorage.setItem(PIN_KEY, pin); } catch(e){}
+}
+function clearSavedPin(){
+  try { localStorage.removeItem(PIN_KEY); } catch(e){}
+}
+
+async function sheetLookup(name, pin){
+  try {
+    const url = `${SHEET_API_URL}?action=lookup&pin=${encodeURIComponent(pin)}&name=${encodeURIComponent(name)}`;
+    const res = await fetch(url);
+    return await res.json();
+  } catch(e){
+    return { error: "network" };
+  }
+}
+
+async function sheetSave(data, pin){
+  try {
+    const params = new URLSearchParams({
+      action: "save", pin,
+      name: data.name || "", role: data.role || "", ic: data.ic || "",
+      bankAccName: data.bankAccName || "", accountNumber: data.accountNumber || "", bankName: data.bankName || ""
+    });
+    const res = await fetch(`${SHEET_API_URL}?${params.toString()}`);
+    return await res.json();
+  } catch(e){
+    return { error: "network" };
+  }
+}
 
 let profile = {
   name: "", role: "", ic: "",
@@ -984,23 +1033,31 @@ function startBuilderChat(){
   const saved = loadProfile();
   if(saved && saved.name){
     profile = Object.assign(profile, saved);
-    builderSetInputEnabled(false);
-    postBuilderHTML(`
-      <p>Welcome back, ${escapeHtml(profile.name)}! I've got your details saved from last time:</p>
-      <p style="background:var(--grey);padding:10px;border-radius:8px;font-size:13px;">
-        Name: ${escapeHtml(profile.name)}<br>
-        Role: ${escapeHtml(profile.role || "-")}<br>
-        Bank: ${escapeHtml(profile.bankName || "-")} (${escapeHtml(profile.accountNumber || "-")})
-      </p>
-      <div class="onboard-btn-row">
-        <button class="onboard-btn" onclick="builderUseSaved()">Use these details</button>
-        <button class="onboard-btn secondary" onclick="collectProfile()">Update my details</button>
-      </div>
-    `);
+    showWelcomeBack();
+    return;
+  }
+  postBuilderHTML(`<p>Hi! I'm Haru Chan — let's get your invoice or claim ready.</p>`);
+  if(sheetConfigured()){
+    builderCheckCentralProfile();
   } else {
-    postBuilderHTML(`<p>Hi! I'm Haru Chan — let's get your invoice or claim ready. I'll ask a few quick questions first, then save them so you won't have to repeat this next time.</p>`);
     collectProfile();
   }
+}
+
+function showWelcomeBack(){
+  builderSetInputEnabled(false);
+  postBuilderHTML(`
+    <p>Welcome back, ${escapeHtml(profile.name)}! I've got your details saved from last time:</p>
+    <p style="background:var(--grey);padding:10px;border-radius:8px;font-size:13px;">
+      Name: ${escapeHtml(profile.name)}<br>
+      Role: ${escapeHtml(profile.role || "-")}<br>
+      Bank: ${escapeHtml(profile.bankName || "-")} (${escapeHtml(profile.accountNumber || "-")})
+    </p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderUseSaved()">Use these details</button>
+      <button class="onboard-btn secondary" onclick="collectProfile()">Update my details</button>
+    </div>
+  `);
 }
 
 function builderUseSaved(){
@@ -1009,13 +1066,112 @@ function builderUseSaved(){
   builderPromptAddItem();
 }
 
+// First time on this device: ask for a name so we can check the central
+// sheet (in case this person already has saved details from another
+// device/browser) before falling back to asking everything from scratch.
+function builderCheckCentralProfile(){
+  builderAsk("First, what's your name? If you've filled this in before on another device, I can pull up your saved details.", "e.g. Jane Doe", (name) => {
+    if(!name){
+      postBuilderHTML(`<p>Just need a name to check for saved details — mind trying again?</p>`);
+      builderCheckCentralProfile();
+      return;
+    }
+    profile.name = name;
+    builderCheckPinThenLookup(name);
+  });
+}
+
+function builderCheckPinThenLookup(name){
+  const cachedPin = getSavedPin();
+  if(cachedPin){
+    builderDoLookup(name, cachedPin);
+    return;
+  }
+  builderAsk("What's the shared team PIN? (Ask Wen or Armand if you don't have it.)", "e.g. 1234", (pin) => {
+    if(!pin){
+      postBuilderHTML(`<p>Just need the shared PIN to check for saved details — mind trying again?</p>`);
+      builderCheckPinThenLookup(name);
+      return;
+    }
+    savePin(pin);
+    builderDoLookup(name, pin);
+  });
+}
+
+async function builderDoLookup(name, pin){
+  postBuilderHTML(`<p>One sec, checking for your saved details...</p>`);
+  const result = await sheetLookup(name, pin);
+  if(result && result.error === "Invalid PIN"){
+    clearSavedPin();
+    postBuilderHTML(`<p>Hmm, that PIN didn't match — let's try again.</p>`);
+    builderCheckPinThenLookup(name);
+    return;
+  }
+  if(!result || result.error){
+    postBuilderHTML(`<p>Couldn't reach the central sheet just now — no worries, let's just fill in your details.</p>`);
+    collectProfile();
+    return;
+  }
+  if(result.found){
+    profile = Object.assign(profile, {
+      name: result.name, role: result.role, ic: result.ic,
+      bankAccName: result.bankAccName, accountNumber: result.accountNumber, bankName: result.bankName
+    });
+    saveProfile();
+    showWelcomeBack();
+  } else {
+    postBuilderHTML(`<p>No saved details found for you yet — let's fill them in.</p>`);
+    collectProfile();
+  }
+}
+
+// If a shared PIN is already known, silently syncs the just-collected
+// profile to the central sheet. If not (e.g. someone who already had a
+// device-local profile from before this feature existed), asks for the
+// PIN once so future devices can find their details too.
+async function builderEnsurePinThenSave(){
+  if(!sheetConfigured()) return;
+  const cachedPin = getSavedPin();
+  if(cachedPin){
+    await builderSaveCentral(cachedPin);
+    return;
+  }
+  return new Promise(resolve => {
+    builderAsk("Quick one — what's the shared team PIN? This keeps your details synced centrally so you don't have to re-enter them on another device. Type \"skip\" to just save on this device only.", "e.g. 1234 or skip", async (pin) => {
+      if(!pin || /^skip$/i.test(pin)){
+        postBuilderHTML(`<p>No worries — saved on this device only for now.</p>`);
+        resolve();
+        return;
+      }
+      savePin(pin);
+      await builderSaveCentral(pin);
+      resolve();
+    });
+  });
+}
+
+async function builderSaveCentral(pin){
+  const result = await sheetSave(profile, pin);
+  if(result && result.error === "Invalid PIN"){
+    clearSavedPin();
+    postBuilderHTML(`<p style="font-size:12px;color:var(--grey-dark);">(That PIN didn't match, so I couldn't sync centrally this time — your details are still saved on this device.)</p>`);
+  } else if(!result || result.error){
+    postBuilderHTML(`<p style="font-size:12px;color:var(--grey-dark);">(Couldn't reach the central sheet just now, but your details are saved on this device.)</p>`);
+  } else {
+    postBuilderHTML(`<p style="font-size:12px;color:var(--grey-dark);">(Synced to the central sheet ✅)</p>`);
+  }
+}
+
 function collectProfile(){
-  askSequence([
-    {
+  const steps = [];
+  if(!profile.name){
+    steps.push({
       prompt: "What's your name?", placeholder: "e.g. Jane Doe",
       required: true, requiredMsg: "I'll need your name to continue — what should I call you?",
       onAnswer: v => profile.name = v
-    },
+    });
+  }
+  steps.push(
     {
       prompt: "Thanks! What's your role or department?", placeholder: "e.g. Marketing Executive",
       onAnswer: v => profile.role = v
@@ -1038,9 +1194,11 @@ function collectProfile(){
       prompt: "Last one — bank name?", placeholder: "e.g. RHB Bank",
       onAnswer: v => profile.bankName = v
     }
-  ], () => {
+  );
+  askSequence(steps, async () => {
     saveProfile();
     postBuilderHTML(`<p>All saved! I won't ask for these again next time you're here.</p>`);
+    await builderEnsurePinThenSave();
     builderPromptAddItem();
   });
 }
