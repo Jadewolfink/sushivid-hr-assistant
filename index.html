@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SushiVid HR Assistant</title>
+<title>Haru Chan | SushiVid HR Assistant</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
@@ -167,6 +167,39 @@
     cursor:pointer;
   }
   #inputBar button:hover{opacity:0.9;}
+  .chat-inputbar{
+    border-top:1px solid var(--border);
+    background:var(--white);
+    padding:14px 20px;
+    display:flex;
+    gap:10px;
+    max-width:720px;
+    width:100%;
+    margin:0 auto;
+    flex-shrink:0;
+  }
+  .chat-inputbar input{
+    flex:1;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:14.5px;
+    outline:none;
+  }
+  .chat-inputbar input:focus{border-color:var(--red);}
+  .chat-inputbar input:disabled{background:var(--grey);color:var(--grey-dark);}
+  .chat-inputbar button{
+    background:var(--red);
+    color:var(--white);
+    border:none;
+    border-radius:10px;
+    padding:0 20px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .chat-inputbar button:hover{opacity:0.9;}
+  .chat-inputbar button:disabled{background:var(--border);color:var(--grey-dark);cursor:not-allowed;}
   .footNote{
     text-align:center;
     font-size:11px;
@@ -284,15 +317,121 @@
     margin-top:12px;
     line-height:1.5;
   }
+
+  /* --- Onboarding tab --- */
+  #tab-onboard{overflow-y:auto;}
+  .onboard-chat{
+    max-width:720px;
+    margin:0 auto;
+    width:100%;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .onboard-msg{
+    max-width:92%;
+    padding:14px 16px;
+    border-radius:14px;
+    line-height:1.55;
+    font-size:14.5px;
+    background:var(--white);
+    border:1px solid var(--border);
+    align-self:flex-start;
+    border-bottom-left-radius:4px;
+  }
+  .onboard-msg.user{
+    background:var(--red);
+    color:var(--white);
+    align-self:flex-end;
+    border-bottom-right-radius:4px;
+    max-width:70%;
+    white-space:pre-wrap;
+  }
+  .onboard-msg h4{
+    margin:0 0 8px;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    color:var(--red);
+  }
+  .onboard-msg p{margin:0 0 10px;}
+  .onboard-msg p:last-child{margin-bottom:0;}
+  .onboard-msg ol, .onboard-msg ul{margin:0 0 10px 18px;padding:0;}
+  .onboard-msg li{margin-bottom:8px;}
+  .onboard-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:10px 0;
+  }
+  .onboard-msg label{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:12px;
+    color:var(--grey-dark);
+    font-weight:600;
+  }
+  .onboard-msg label input, .onboard-msg label select{
+    font-family:inherit;
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    font-size:13.5px;
+    color:var(--black);
+    background:var(--grey);
+  }
+  .onboard-check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13.5px;
+    font-weight:600;
+    margin:12px 0 4px;
+  }
+  .onboard-check input{width:auto;}
+  .onboard-btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .onboard-btn{
+    background:var(--black);
+    color:var(--white);
+    border:none;
+    border-radius:8px;
+    padding:9px 16px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+  }
+  .onboard-btn:hover{opacity:0.88;}
+  .onboard-btn.secondary{
+    background:var(--white);
+    color:var(--black);
+    border:1px solid var(--border);
+  }
+  .onboard-btn.wa{background:#25D366;}
+  .onboard-btn:disabled{opacity:0.45;cursor:not-allowed;}
+  .onboard-role-chip{
+    display:inline-block;
+    background:var(--grey);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:7px 14px;
+    font-size:13px;
+    cursor:pointer;
+    margin:3px 6px 3px 0;
+  }
+  .onboard-role-chip.selected{background:var(--black);color:var(--white);border-color:var(--black);}
+  #builderChat{flex:1;overflow-y:auto;}
+  #onboardChat{flex:1;overflow-y:auto;}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-dot">S</div>
+  <div class="logo-dot">H</div>
   <div class="title">
-    <strong>SushiVid HR Assistant</strong>
-    <span>Ask a question, or get your invoice/OT/expense claim filled in for you</span>
+    <strong>Haru Chan</strong>
+    <span>SushiVid's HR Assistant — ask a question, or get your invoice/OT/expense claim filled in for you</span>
   </div>
 </header>
 
@@ -300,6 +439,7 @@
   <div class="tabnav-inner">
     <div class="tabbtn active" id="navAsk" onclick="showTab('ask')">Ask HR</div>
     <div class="tabbtn" id="navBuilder" onclick="showTab('builder')">Fill My Invoice / Claim</div>
+    <div class="tabbtn" id="navOnboard" onclick="showTab('onboard')">New Employee Onboarding</div>
   </div>
 </div>
 
@@ -314,85 +454,18 @@
 </div>
 
 <div id="tab-builder" class="tabpanel">
-  <div class="builder-wrap">
+  <div id="builderChat" class="onboard-chat"></div>
+  <div id="builderInputBar" class="chat-inputbar">
+    <input type="text" id="builderInput" placeholder="Pick an option above..." autocomplete="off" disabled>
+    <button id="builderSendBtn" disabled>Send</button>
+  </div>
+</div>
 
-    <h3>Your Details</h3>
-    <div class="grid2">
-      <label>Your Name<input id="inv_name" type="text" placeholder="e.g. Chua Rong Li"></label>
-      <label>Role / Department<input id="inv_role" type="text" placeholder="e.g. Marketing Executive"></label>
-      <label>Invoice No<input id="inv_no" type="text" value="1"></label>
-      <label>Invoice Date<input id="inv_date" type="date"></label>
-      <label>IC Number <span style="font-weight:400;">(required on your first invoice)</span><input id="inv_ic" type="text" placeholder="e.g. 000529-14-1015"></label>
-    </div>
-
-    <h3>Bank Details (for payment)</h3>
-    <div class="grid2">
-      <label>Account Name<input id="inv_bankAccName" type="text" placeholder="Defaults to your name"></label>
-      <label>Account Number<input id="inv_accNo" type="text"></label>
-      <label>Bank Name<input id="inv_bankName" type="text"></label>
-      <label>Branch (optional)<input id="inv_branch" type="text" value="NA"></label>
-      <label>SWIFT Code (optional)<input id="inv_swift" type="text" value="NA"></label>
-    </div>
-
-    <h3>Add Line Items</h3>
-    <div class="chips" id="itemTypeChips" style="padding:0 0 12px;max-width:none;">
-       <div class="chip active" data-type="general">General Item</div>
-       <div class="chip" data-type="ot">Overtime Claim</div>
-       <div class="chip" data-type="expense">Expense Claim</div>
-    </div>
-
-    <div id="form-general" class="itemform">
-       <div class="grid3">
-         <label>Description<input id="g_desc" type="text" placeholder="e.g. Intern Fee for June 2026"></label>
-         <label>Qty<input id="g_qty" type="number" value="1" min="0" step="1"></label>
-         <label>Unit Price (RM)<input id="g_price" type="number" step="0.01"></label>
-       </div>
-       <button class="addBtn" onclick="addGeneralItem()">+ Add Item</button>
-    </div>
-
-    <div id="form-ot" class="itemform" style="display:none">
-       <label style="margin-bottom:10px;">OT Type
-        <select id="ot_type" onchange="toggleMealRow()">
-          <option value="office">Office-based (RM20/hr after 7:30 PM)</option>
-          <option value="event">Event / Campaign - off-site (RM100 per 3-hr block)</option>
-          <option value="holiday">Weekend / Public Holiday (RM100 per 3-hr block)</option>
-        </select>
-       </label>
-       <div class="grid2">
-         <label>Campaign / Event Name<input id="ot_event" type="text" placeholder="e.g. Social Media Campaign X"></label>
-         <label>Task Performed<input id="ot_task" type="text" placeholder="e.g. Content creation"></label>
-         <label>Date<input id="ot_date" type="date"></label>
-         <label>Hours Worked<input id="ot_hours" type="number" step="0.5" min="0" placeholder="excl. travel time"></label>
-       </div>
-       <label class="checkboxRow" id="ot_mealRow"><input type="checkbox" id="ot_meal"> Worked past 8:30 PM (adds RM20 meal claim)</label>
-       <button class="addBtn" onclick="addOTItem()">+ Add OT Claim</button>
-    </div>
-
-    <div id="form-expense" class="itemform" style="display:none">
-       <label style="margin-bottom:10px;">Expense Type
-        <select id="exp_type" onchange="renderExpenseFields()">
-          <option value="ehailing">E-hailing (Grab Economy/Comfort, Just Grab)</option>
-          <option value="mileage">Local Mileage - KL &amp; Selangor (RM0.50/km)</option>
-          <option value="fuel">Fuel - Out of state (full tank, itemised receipt)</option>
-          <option value="meal">Meal Claim (non-OT, capped RM20)</option>
-        </select>
-       </label>
-       <div id="exp_fields" class="grid2"></div>
-       <button class="addBtn" onclick="addExpenseItem()">+ Add Expense</button>
-    </div>
-
-    <h3>Items on This Invoice</h3>
-    <table id="itemsTable">
-      <thead><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th><th></th></tr></thead>
-      <tbody id="itemsBody"></tbody>
-      <tfoot><tr><td colspan="4" style="text-align:right;font-weight:700;">GRAND TOTAL (RM)</td><td id="grandTotal" style="font-weight:700;">0.00</td><td></td></tr></tfoot>
-    </table>
-
-    <div class="actionsRow">
-      <button class="primaryBtn" onclick="downloadInvoice()">Download Filled Invoice (PDF)</button>
-      <button class="secondaryBtn" onclick="draftEmail()">Draft Email to Armand</button>
-    </div>
-    <p class="smallNote">This fills in the official SushiVid invoice format automatically, with amounts calculated from current policy rates — no blank template to figure out. Just double-check the numbers, then email it to armand@sushivid.com (cc your team lead) before month-end. Payment goes out on the last day of the month (allow 1-2 days processing buffer).<br><br>Reminder: include your IC number if this is your first invoice (government requirement). Where applicable, attach receipts — for hard copy receipts, paste onto A4 paper and highlight the amount, date, and company name so the info survives even if the receipt ink fades over time.</p>
+<div id="tab-onboard" class="tabpanel">
+  <div id="onboardChat" class="onboard-chat"></div>
+  <div id="onboardInputBar" class="chat-inputbar">
+    <input type="text" id="onboardInput" placeholder="Pick an option above..." autocomplete="off" disabled>
+    <button id="onboardSendBtn" disabled>Send</button>
   </div>
 </div>
 
@@ -456,17 +529,17 @@ const KB = [
   },
   {
     keywords: ["apply for leave","leave application","how to apply leave","request leave","how do i apply","email for leave","leave approval","book leave"],
-    answer: "For annual leave, emergency leave, or replacement leave: email your team lead directly, and cc Armand (armand@sushivid.com) and Raj (raj@sushivid.com). In the email, please include the date(s) you're requesting, and whether it's a full day or half day (and if half day, morning or afternoon).\nYour team lead will need to approve it — anything requested within 72 hours is treated as emergency leave, so just let them know your reason in that case. Once it's approved, HR will update the internal tracking sheet.\nOne gentle reminder: approval isn't automatic, so please try to wait to hear back before locking in flights or hotels — we'd hate for you to be out of pocket if the timing doesn't work out.",
+    answer: "For annual leave, emergency leave, or replacement leave: email your team lead directly, and cc Armand (armand@sushivid.com). In the email, please include the date(s) you're requesting, and whether it's a full day or half day (and if half day, morning or afternoon).\nYour team lead will need to approve it — anything requested within 72 hours is treated as emergency leave, so just let them know your reason in that case. Once it's approved, HR will update the internal tracking sheet.\nOne gentle reminder: approval isn't automatic, so please try to wait to hear back before locking in flights or hotels — we'd hate for you to be out of pocket if the timing doesn't work out.",
     source: "Leave Application Process"
   },
   {
     keywords: ["medical certificate procedure","send mc","mc process","how to submit mc","no mc","sick leave process","mc to team lead","produce an mc","produce mc","cant produce mc","cannot produce mc","unable to produce mc","forgot mc","no mc produced"],
-    answer: "If you're taking MC, just give your team lead a heads-up as early as you can. Once you're back, send a copy of the MC to your team lead, cc'ing Armand (armand@sushivid.com) and Raj (raj@sushivid.com).\nIf for whatever reason an MC can't be produced, that time off will be treated as emergency leave instead (drawn from your annual leave) — just so you're aware going in.",
+    answer: "If you're taking MC, just give your team lead a heads-up as early as you can. Once you're back, send a copy of the MC to your team lead, cc'ing Armand (armand@sushivid.com).\nIf for whatever reason an MC can't be produced, that time off will be treated as emergency leave instead (drawn from your annual leave) — just so you're aware going in.",
     source: "Medical Certificate Procedure"
   },
   {
     keywords: ["replacement leave","time off in lieu","work weekend time off","desk bound weekend","11.11 replacement leave","comp off","working weekend get time off","time off for working the weekend","time off for weekend work","day off after working weekend","get time off for weekend"],
-    answer: "If you're desk-bound over a weekend (managing drafts, messaging KOLs, handling an urgent pitch) you'll be given replacement leave for that time. \"Desk-bound\" is the key word — if a KOL takes 3 hours to reply and you only spend 10 minutes actually responding, that's 10 minutes of work, not 3 hours.\nIf your team works a bit on a weekend night, you're welcome to come in a little later the next working day. And if a campaign has you fully desk-bound on a weekend or public holiday (think 11.11 or 12.12), you'll be entitled to replacement leave for it. This is given at your team lead's discretion, usually in smaller 1-2 hour chunks rather than all at once, though over 3 hours counts as a half day and over 5 hours as a full day (again, team lead's call).\nA few practical notes: replacement leave needs to be used within 2 weeks of earning it, and it can't be banked up over time. There's no form for this — just email your team lead (cc Armand and Raj) with the date you'd like to take, and which day/event it's replacing.\nWe also try to keep weekends restful where we can — arranging KOL messages to send Friday, for example, so you're not stuck waiting on replies over the weekend.",
+    answer: "If you're desk-bound over a weekend (managing drafts, messaging KOLs, handling an urgent pitch) you'll be given replacement leave for that time. \"Desk-bound\" is the key word — if a KOL takes 3 hours to reply and you only spend 10 minutes actually responding, that's 10 minutes of work, not 3 hours.\nIf your team works a bit on a weekend night, you're welcome to come in a little later the next working day. And if a campaign has you fully desk-bound on a weekend or public holiday (think 11.11 or 12.12), you'll be entitled to replacement leave for it. This is given at your team lead's discretion, usually in smaller 1-2 hour chunks rather than all at once, though over 3 hours counts as a half day and over 5 hours as a full day (again, team lead's call).\nA few practical notes: replacement leave needs to be used within 2 weeks of earning it, and it can't be banked up over time. There's no form for this — just email your team lead (cc Armand) with the date you'd like to take, and which day/event it's replacing.\nWe also try to keep weekends restful where we can — arranging KOL messages to send Friday, for example, so you're not stuck waiting on replies over the weekend.",
     source: "Replacement Leave"
   },
   {
@@ -725,8 +798,18 @@ function findAnswer(question){
 function showTab(name){
   document.getElementById("tab-ask").classList.toggle("active", name === "ask");
   document.getElementById("tab-builder").classList.toggle("active", name === "builder");
+  document.getElementById("tab-onboard").classList.toggle("active", name === "onboard");
   document.getElementById("navAsk").classList.toggle("active", name === "ask");
   document.getElementById("navBuilder").classList.toggle("active", name === "builder");
+  document.getElementById("navOnboard").classList.toggle("active", name === "onboard");
+  if(name === "onboard" && !onboardStarted){
+    onboardStarted = true;
+    startOnboarding();
+  }
+  if(name === "builder" && !builderStarted){
+    builderStarted = true;
+    startBuilderChat();
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -802,162 +885,529 @@ function renderChips(){
 sendBtn.onclick = () => handleAsk(inputEl.value);
 inputEl.addEventListener("keydown", e => { if(e.key === "Enter") handleAsk(inputEl.value); });
 
-addMessage("Hi, so glad you're here! I'm the SushiVid HR Assistant — ask me anything about pay, leave, claims, WFH, or how we like to work together as a team. Everything I share comes straight from our company policies and handbook, and if I don't know something, I'll gently point you to HR instead of guessing.", "bot");
+addMessage("Hi, so glad you're here! I'm Haru Chan, SushiVid's HR Assistant — ask me anything about pay, leave, claims, WFH, or how we like to work together as a team. Everything I share comes straight from our company policies and handbook, and if I don't know something, I'll gently point you to HR instead of guessing.", "bot");
 renderChips();
 
 // ---------------------------------------------------------------------
-// INVOICE / CLAIM BUILDER
+// INVOICE / CLAIM BUILDER — a real back-and-forth chat, with saved
+// profile so returning employees don't have to re-enter their
+// name/role/bank details each time. Free-text questions are answered
+// through the shared input bar at the bottom (type + Enter/Send);
+// multiple-choice questions use quick-reply buttons in the bot bubble.
 // ---------------------------------------------------------------------
 let items = [];
+let builderStarted = false;
+const builderChat = document.getElementById("builderChat");
+const builderInputEl = document.getElementById("builderInput");
+const builderSendBtn = document.getElementById("builderSendBtn");
+const PROFILE_KEY = "sushivid_invoice_profile_v1";
 
-document.querySelectorAll("#itemTypeChips .chip").forEach(chip => {
-  chip.onclick = () => {
-    document.querySelectorAll("#itemTypeChips .chip").forEach(c => c.classList.remove("active"));
-    chip.classList.add("active");
-    const type = chip.dataset.type;
-    document.getElementById("form-general").style.display = type === "general" ? "block" : "none";
-    document.getElementById("form-ot").style.display = type === "ot" ? "block" : "none";
-    document.getElementById("form-expense").style.display = type === "expense" ? "block" : "none";
-  };
-});
+let profile = {
+  name: "", role: "", ic: "",
+  bankAccName: "", accountNumber: "", bankName: ""
+};
 
-function toggleMealRow(){
-  const type = document.getElementById("ot_type").value;
-  document.getElementById("ot_mealRow").style.display = type === "office" ? "flex" : "none";
+let builderAwaitingCallback = null;
+
+function loadProfile(){
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e){ return null; }
+}
+function saveProfile(){
+  try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch(e){}
+}
+function clearProfile(){
+  try { localStorage.removeItem(PROFILE_KEY); } catch(e){}
 }
 
-function renderExpenseFields(){
-  const type = document.getElementById("exp_type").value;
-  const c = document.getElementById("exp_fields");
-  if(type === "ehailing"){
-    c.innerHTML = `
-      <label>Date<input id="exp_date" type="date"></label>
-      <label>Route / Purpose<input id="exp_purpose" type="text" placeholder="e.g. Office to client meeting"></label>
-      <label>Fare Amount (RM)<input id="exp_amount" type="number" step="0.01"></label>
-    `;
-  } else if(type === "mileage"){
-    c.innerHTML = `
-      <label>Date<input id="exp_date" type="date"></label>
-      <label>Purpose<input id="exp_purpose" type="text"></label>
-      <label>KM Driven<input id="exp_km" type="number" step="0.1"></label>
-    `;
-  } else if(type === "fuel"){
-    c.innerHTML = `
-      <label>Date<input id="exp_date" type="date"></label>
-      <label>Location / State<input id="exp_purpose" type="text"></label>
-      <label>Receipt Amount (RM)<input id="exp_amount" type="number" step="0.01"></label>
-    `;
-  } else if(type === "meal"){
-    c.innerHTML = `
-      <label>Date<input id="exp_date" type="date"></label>
-      <label>Receipt Amount (RM, max 20)<input id="exp_amount" type="number" step="0.01" max="20"></label>
-    `;
+function postBuilderHTML(html, who){
+  const div = document.createElement("div");
+  div.className = "onboard-msg" + (who === "user" ? " user" : "");
+  div.innerHTML = html;
+  builderChat.appendChild(div);
+  builderChat.scrollTop = builderChat.scrollHeight;
+  return div;
+}
+
+// Disable the input bar while a multiple-choice bubble is showing (nothing
+// to type yet); enable it with a helpful placeholder while we're waiting
+// on a free-text answer.
+function builderSetInputEnabled(enabled, placeholder){
+  builderInputEl.disabled = !enabled;
+  builderSendBtn.disabled = !enabled;
+  builderInputEl.placeholder = placeholder || (enabled ? "Type your answer..." : "Pick an option above...");
+  if(enabled){ builderInputEl.value = ""; builderInputEl.focus(); }
+}
+
+// Posts a bot question, then waits for the next free-text submission
+// from the shared input bar before calling back with the answer.
+function builderAsk(promptHtml, placeholder, callback){
+  postBuilderHTML(promptHtml);
+  builderAwaitingCallback = callback;
+  builderSetInputEnabled(true, placeholder);
+}
+
+function builderSubmitAnswer(){
+  if(builderAwaitingCallback === null) return; // not currently expecting free text
+  const val = builderInputEl.value.trim();
+  postBuilderHTML(val || "(skipped)", "user");
+  const cb = builderAwaitingCallback;
+  builderAwaitingCallback = null;
+  builderSetInputEnabled(false);
+  cb(val);
+}
+
+builderSendBtn.onclick = builderSubmitAnswer;
+builderInputEl.addEventListener("keydown", e => { if(e.key === "Enter") builderSubmitAnswer(); });
+
+// Walks through a list of {prompt, placeholder, required, requiredMsg, onAnswer}
+// steps one at a time via the chat input, re-asking if a required answer
+// is missing, then calls onComplete() once every step has been answered.
+function askSequence(steps, onComplete, index){
+  index = index || 0;
+  if(index >= steps.length){ onComplete(); return; }
+  const step = steps[index];
+  builderAsk(step.prompt, step.placeholder, (val) => {
+    if(step.required && !val){
+      postBuilderHTML(`<p>${step.requiredMsg || "Just need an answer here to keep going — mind trying again?"}</p>`);
+      askSequence(steps, onComplete, index);
+      return;
+    }
+    step.onAnswer(val);
+    askSequence(steps, onComplete, index + 1);
+  });
+}
+
+function startBuilderChat(){
+  const saved = loadProfile();
+  if(saved && saved.name){
+    profile = Object.assign(profile, saved);
+    builderSetInputEnabled(false);
+    postBuilderHTML(`
+      <p>Welcome back, ${escapeHtml(profile.name)}! I've got your details saved from last time:</p>
+      <p style="background:var(--grey);padding:10px;border-radius:8px;font-size:13px;">
+        Name: ${escapeHtml(profile.name)}<br>
+        Role: ${escapeHtml(profile.role || "-")}<br>
+        Bank: ${escapeHtml(profile.bankName || "-")} (${escapeHtml(profile.accountNumber || "-")})
+      </p>
+      <div class="onboard-btn-row">
+        <button class="onboard-btn" onclick="builderUseSaved()">Use these details</button>
+        <button class="onboard-btn secondary" onclick="collectProfile()">Update my details</button>
+      </div>
+    `);
+  } else {
+    postBuilderHTML(`<p>Hi! I'm Haru Chan — let's get your invoice or claim ready. I'll ask a few quick questions first, then save them so you won't have to repeat this next time.</p>`);
+    collectProfile();
   }
 }
 
-function addGeneralItem(){
-  const desc = document.getElementById("g_desc").value.trim();
-  const qty = parseFloat(document.getElementById("g_qty").value) || 0;
-  const price = parseFloat(document.getElementById("g_price").value) || 0;
-  if(!desc || !price){ alert("Add a description and unit price."); return; }
-  items.push({ description: desc, qty, unitPrice: price });
-  document.getElementById("g_desc").value = "";
-  document.getElementById("g_price").value = "";
-  renderItems();
+function builderUseSaved(){
+  postBuilderHTML("Use these details", "user");
+  builderSetInputEnabled(false);
+  builderPromptAddItem();
 }
 
-function addOTItem(){
-  const type = document.getElementById("ot_type").value;
-  const event = document.getElementById("ot_event").value.trim();
-  const task = document.getElementById("ot_task").value.trim();
-  const date = document.getElementById("ot_date").value;
-  const hours = parseFloat(document.getElementById("ot_hours").value) || 0;
-  if(!event || !task || !hours){ alert("Fill in campaign/event name, task performed, and hours worked."); return; }
+function collectProfile(){
+  askSequence([
+    {
+      prompt: "What's your name?", placeholder: "e.g. Jane Doe",
+      required: true, requiredMsg: "I'll need your name to continue — what should I call you?",
+      onAnswer: v => profile.name = v
+    },
+    {
+      prompt: "Thanks! What's your role or department?", placeholder: "e.g. Marketing Executive",
+      onAnswer: v => profile.role = v
+    },
+    {
+      prompt: "If this is your <strong>first invoice</strong> with us, share your IC number (it's a government requirement) — otherwise just type \"skip\".",
+      placeholder: "e.g. 000529-14-1015 or skip",
+      onAnswer: v => profile.ic = /^skip$/i.test(v) ? "" : v
+    },
+    {
+      prompt: "Now your bank details — what's the account holder name? (Type \"same\" to use your name.)",
+      placeholder: "e.g. Jane Doe or same",
+      onAnswer: v => profile.bankAccName = (/^same$/i.test(v) || !v) ? profile.name : v
+    },
+    {
+      prompt: "Account number?", placeholder: "e.g. 16206300052535",
+      onAnswer: v => profile.accountNumber = v
+    },
+    {
+      prompt: "Last one — bank name?", placeholder: "e.g. RHB Bank",
+      onAnswer: v => profile.bankName = v
+    }
+  ], () => {
+    saveProfile();
+    postBuilderHTML(`<p>All saved! I won't ask for these again next time you're here.</p>`);
+    builderPromptAddItem();
+  });
+}
 
+function builderPromptAddItem(){
+  builderSetInputEnabled(false);
+  postBuilderHTML(`
+    <p>What would you like to add to your invoice?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderShowGeneralForm()">Allowance</button>
+      <button class="onboard-btn" onclick="builderShowOTForm()">Overtime Claim</button>
+      <button class="onboard-btn" onclick="builderShowExpenseForm()">Transport Claim</button>
+      ${items.length > 0 ? '<button class="onboard-btn secondary" onclick="builderShowSummary()">I\'m done — show my invoice</button>' : ""}
+    </div>
+  `);
+}
+
+let builderPendingItem = null;
+
+function builderShowGeneralForm(){
+  postBuilderHTML("Allowance", "user");
+  builderPendingItem = {};
+  askSequence([
+    {
+      prompt: "Sure! What's this item for?", placeholder: "e.g. Intern Fee for June 2026",
+      required: true, requiredMsg: "Just need a quick description to add this — what's it for?",
+      onAnswer: v => builderPendingItem.description = v
+    },
+    {
+      prompt: "Quantity? (Type 1 if unsure.)", placeholder: "e.g. 1",
+      onAnswer: v => builderPendingItem.qty = parseFloat(v) || 1
+    },
+    {
+      prompt: "Unit price (RM)?", placeholder: "e.g. 1200",
+      required: true, requiredMsg: "What's the unit price for this item?",
+      onAnswer: v => builderPendingItem.unitPrice = parseFloat(v) || 0
+    }
+  ], builderAskIfMonthlyAllowance);
+}
+
+function builderAskIfMonthlyAllowance(){
+  postBuilderHTML(`
+    <p>Is this your monthly allowance or retainer fee for the month?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderMonthlyAllowanceAnswer(true)">Yes, it is</button>
+      <button class="onboard-btn secondary" onclick="builderMonthlyAllowanceAnswer(false)">No</button>
+    </div>
+  `);
+}
+
+function builderMonthlyAllowanceAnswer(isMonthly){
+  postBuilderHTML(isMonthly ? "Yes, it is" : "No", "user");
+  if(!isMonthly){
+    builderAskGeneralCampaign();
+    return;
+  }
+  builderAskEmploymentType();
+}
+
+function builderAskEmploymentType(){
+  postBuilderHTML(`
+    <p>Are you an intern, or a normal employee?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderEmploymentTypeAnswer('intern')">Intern</button>
+      <button class="onboard-btn secondary" onclick="builderEmploymentTypeAnswer('employee')">Normal Employee</button>
+    </div>
+  `);
+}
+
+function builderEmploymentTypeAnswer(type){
+  postBuilderHTML(type === "intern" ? "Intern" : "Normal Employee", "user");
+  if(type === "intern"){
+    askSequence([
+      {
+        prompt: "Did you take any MC (medical leave) this month? How many days? (Type 0 if none.)",
+        placeholder: "e.g. 0",
+        onAnswer: v => { builderPendingItem.mcDays = parseFloat(v) || 0; }
+      },
+      {
+        prompt: "Any unpaid leave days this month? How many? (Type 0 if none.)",
+        placeholder: "e.g. 0",
+        onAnswer: v => { builderPendingItem.unpaidDays = parseFloat(v) || 0; }
+      }
+    ], builderFinalizeGeneralItem);
+  } else {
+    askSequence([
+      {
+        prompt: "How many leave days did you take this month? (Type 0 if none. Full-time staff get 14 days annual leave a year.)",
+        placeholder: "e.g. 0",
+        onAnswer: v => { builderPendingItem.employeeLeaveDays = parseFloat(v) || 0; }
+      },
+      {
+        prompt: "How many MC days did you take this month? (Type 0 if none. Full-time staff get 14 days MC a year.)",
+        placeholder: "e.g. 0",
+        onAnswer: v => { builderPendingItem.employeeMcDays = parseFloat(v) || 0; }
+      }
+    ], builderFinalizeGeneralItem);
+  }
+}
+
+function builderAskGeneralCampaign(){
+  postBuilderHTML(`
+    <p>Is this for a specific campaign?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderGeneralCampaignAnswer(true)">Yes, it is</button>
+      <button class="onboard-btn secondary" onclick="builderGeneralCampaignAnswer(false)">No, general</button>
+    </div>
+  `);
+}
+
+function builderGeneralCampaignAnswer(isCampaign){
+  postBuilderHTML(isCampaign ? "Yes, it is" : "No, general", "user");
+  if(!isCampaign){
+    builderFinalizeGeneralItem();
+    return;
+  }
+  builderAsk("Which campaign?", "e.g. Brand X Campaign", (campaign) => {
+    if(campaign) builderPendingItem.description += ` (${campaign})`;
+    builderFinalizeGeneralItem();
+  });
+}
+
+// Interns: unpaid leave is always deducted at (monthly amount / 30) per day.
+// MC is fine up to 1 day a month; any day beyond the first is treated as
+// unpaid and deducted the same way.
+// Full-time employees: get 14 days annual leave and 14 days MC a year, so
+// no deduction from their allowance — just note how many leave/MC days
+// they took this month.
+function builderFinalizeGeneralItem(){
+  const item = builderPendingItem;
+  let qty = item.qty;
+  let unitPrice = item.unitPrice;
+  let desc = item.description;
+
+  const isIntern = item.mcDays !== undefined;
+  const isEmployee = item.employeeMcDays !== undefined;
+
+  if(isIntern){
+    const mcDays = item.mcDays || 0;
+    const unpaidDays = item.unpaidDays || 0;
+    const excessMcDays = Math.max(0, mcDays - 1);
+    const deductDays = unpaidDays + excessMcDays;
+    const mcNote = `MC taken: ${mcDays} day${mcDays === 1 ? "" : "s"}${excessMcDays > 0 ? ` [${excessMcDays} day${excessMcDays === 1 ? "" : "s"} beyond the first treated as unpaid]` : ""}`;
+
+    const baseAmount = +(qty * unitPrice).toFixed(2);
+    const dailyRate = +(baseAmount / 30).toFixed(2);
+
+    if(deductDays > 0){
+      const deduction = +(deductDays * dailyRate).toFixed(2);
+      const netAmount = Math.max(0, +(baseAmount - deduction).toFixed(2));
+      desc += ` (${mcNote}, unpaid leave: ${unpaidDays} day${unpaidDays === 1 ? "" : "s"} — ${deductDays} day${deductDays === 1 ? "" : "s"} deducted @ RM${dailyRate.toFixed(2)}/day (RM${baseAmount.toFixed(2)} / 30) = -RM${deduction.toFixed(2)}, Net: RM${netAmount.toFixed(2)})`;
+      qty = 1;
+      unitPrice = netAmount;
+    } else {
+      desc += ` (${mcNote}, unpaid leave: ${unpaidDays} day${unpaidDays === 1 ? "" : "s"})`;
+    }
+  } else if(isEmployee){
+    const leaveDays = item.employeeLeaveDays || 0;
+    const mcDays = item.employeeMcDays || 0;
+    desc += ` (Leave taken: ${leaveDays} day${leaveDays === 1 ? "" : "s"}, MC taken: ${mcDays} day${mcDays === 1 ? "" : "s"})`;
+  }
+
+  items.push({ description: desc, qty, unitPrice });
+  builderConfirmItemAdded(desc);
+  builderPendingItem = null;
+}
+
+function builderShowOTForm(){
+  builderSetInputEnabled(false);
+  postBuilderHTML(`
+    <p>What type of overtime is this?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderOTTypeChosen('office')">Office-based (RM20/hr after 7:30PM)</button>
+      <button class="onboard-btn" onclick="builderOTTypeChosen('event')">Event/Campaign off-site (RM100/3hr)</button>
+      <button class="onboard-btn" onclick="builderOTTypeChosen('holiday')">Weekend/Public Holiday (RM100/3hr)</button>
+    </div>
+  `);
+}
+
+function builderOTTypeChosen(type){
+  const labels = { office: "Office-based", event: "Event/Campaign off-site", holiday: "Weekend/Public Holiday" };
+  postBuilderHTML(labels[type], "user");
+  const o = { type };
+  const steps = [
+    {
+      prompt: "What's the campaign or event name?", placeholder: "e.g. Social Media Campaign X",
+      required: true, requiredMsg: "I'll need a campaign/event name to log this OT properly.",
+      onAnswer: v => o.event = v
+    },
+    {
+      prompt: "What task did you do?", placeholder: "e.g. Content creation",
+      required: true, requiredMsg: "What task were you working on?",
+      onAnswer: v => o.task = v
+    },
+    {
+      prompt: "What date? (e.g. 2026-07-06, or type \"today\")", placeholder: "YYYY-MM-DD or today",
+      onAnswer: v => o.date = /^today$/i.test(v) ? new Date().toISOString().slice(0, 10) : v
+    },
+    {
+      prompt: "How many hours (excluding travel time)?", placeholder: "e.g. 2.5",
+      required: true, requiredMsg: "How many hours was this?",
+      onAnswer: v => o.hours = parseFloat(v) || 0
+    }
+  ];
   if(type === "office"){
-    items.push({ description: `Office OT - ${event}: ${task} (${date || "date TBC"}, ${hours}h after 7:30PM)`, qty: hours, unitPrice: RATES.officeOTPerHour });
-    if(document.getElementById("ot_meal").checked){
-      items.push({ description: `Meal claim (OT past 8:30PM) - ${date || "date TBC"}`, qty: 1, unitPrice: RATES.mealClaim });
+    steps.push({
+      prompt: "Did you work past 8:30 PM? (yes/no — this adds a RM20 meal claim)", placeholder: "yes or no",
+      onAnswer: v => o.meal = /^y/i.test(v)
+    });
+  }
+  askSequence(steps, () => builderFinalizeOT(o));
+}
+
+function builderFinalizeOT(o){
+  let addedDesc = "";
+  if(o.type === "office"){
+    const desc = `Office OT - ${o.event}: ${o.task} (${o.date || "date TBC"}, ${o.hours}h after 7:30PM)`;
+    items.push({ description: desc, qty: o.hours, unitPrice: RATES.officeOTPerHour });
+    addedDesc = desc;
+    if(o.meal){
+      items.push({ description: `Meal claim (OT past 8:30PM) - ${o.date || "date TBC"}`, qty: 1, unitPrice: RATES.mealClaim });
+      addedDesc += " + meal claim";
     }
   } else {
-    const blocks = hours / 3;
+    const blocks = o.hours / 3;
     const amount = +(blocks * RATES.eventOTPer3hrBlock).toFixed(2);
-    const label = type === "event" ? "Event OT" : "Weekend/Holiday OT";
-    items.push({ description: `${label} - ${event}: ${task} (${date || "date TBC"}, ${hours}h)`, qty: 1, unitPrice: amount });
+    const label = o.type === "event" ? "Event OT" : "Weekend/Holiday OT";
+    const desc = `${label} - ${o.event}: ${o.task} (${o.date || "date TBC"}, ${o.hours}h)`;
+    items.push({ description: desc, qty: 1, unitPrice: amount });
+    addedDesc = desc;
   }
-
-  document.getElementById("ot_event").value = "";
-  document.getElementById("ot_task").value = "";
-  document.getElementById("ot_hours").value = "";
-  document.getElementById("ot_meal").checked = false;
-  renderItems();
+  builderConfirmItemAdded(addedDesc);
 }
 
-function addExpenseItem(){
-  const type = document.getElementById("exp_type").value;
-  const date = document.getElementById("exp_date")?.value || "";
-  const purpose = document.getElementById("exp_purpose")?.value?.trim() || "";
+function builderShowExpenseForm(){
+  postBuilderHTML("Transport Claim", "user");
+  builderSetInputEnabled(false);
+  postBuilderHTML(`
+    <p>What kind of transport claim is this?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderExpenseTypeChosen('ehailing')">E-hailing</button>
+      <button class="onboard-btn" onclick="builderExpenseTypeChosen('mileage')">Local Mileage</button>
+      <button class="onboard-btn" onclick="builderExpenseTypeChosen('parking')">Parking</button>
+      <button class="onboard-btn" onclick="builderExpenseTypeChosen('fuel')">Fuel (out-of-state)</button>
+      <button class="onboard-btn" onclick="builderExpenseTypeChosen('meal')">Meal Claim</button>
+    </div>
+  `);
+}
+
+function builderExpenseTypeChosen(type){
+  const labels = { ehailing: "E-hailing", mileage: "Local Mileage", parking: "Parking", fuel: "Fuel (out-of-state)", meal: "Meal Claim" };
+  postBuilderHTML(labels[type], "user");
+  const e = { type };
+  const steps = [
+    { prompt: "What date? (or type \"today\")", placeholder: "YYYY-MM-DD or today", onAnswer: v => e.date = /^today$/i.test(v) ? new Date().toISOString().slice(0, 10) : v }
+  ];
+  if(type === "ehailing"){
+    steps.push({ prompt: "Route or purpose?", placeholder: "e.g. Office to client meeting", onAnswer: v => e.purpose = v });
+    steps.push({ prompt: "Fare amount (RM)?", placeholder: "e.g. 15.50", required: true, requiredMsg: "What was the fare amount?", onAnswer: v => e.amount = parseFloat(v) || 0 });
+  } else if(type === "mileage"){
+    steps.push({ prompt: "Where were you heading to?", placeholder: "e.g. Client office in Bangsar", required: true, requiredMsg: "Where was this trip to?", onAnswer: v => e.destination = v });
+    steps.push({ prompt: "Which campaign or event was this for? (Type \"N/A\" if it wasn't campaign-related.)", placeholder: "e.g. Brand X Campaign", required: true, requiredMsg: "Which campaign or event was this trip for?", onAnswer: v => e.campaign = v });
+    steps.push({ prompt: "How many km did you drive?", placeholder: "e.g. 40", required: true, requiredMsg: "How many km was the trip?", onAnswer: v => e.km = parseFloat(v) || 0 });
+  } else if(type === "parking"){
+    steps.push({ prompt: "What event or campaign was this for?", placeholder: "e.g. Brand X Launch Event", required: true, requiredMsg: "Which event or campaign was this parking for?", onAnswer: v => e.event = v });
+    steps.push({ prompt: "Receipt amount (RM)?", placeholder: "e.g. 10", required: true, requiredMsg: "What was the parking receipt amount?", onAnswer: v => e.amount = parseFloat(v) || 0 });
+  } else if(type === "fuel"){
+    steps.push({ prompt: "Location or state?", placeholder: "e.g. Melaka", onAnswer: v => e.purpose = v });
+    steps.push({ prompt: "Receipt amount (RM)?", placeholder: "e.g. 120", required: true, requiredMsg: "What was the receipt amount?", onAnswer: v => e.amount = parseFloat(v) || 0 });
+  } else if(type === "meal"){
+    steps.push({ prompt: "Receipt amount (RM, capped at 20)?", placeholder: "e.g. 18", required: true, requiredMsg: "What was the receipt amount?", onAnswer: v => e.amount = Math.min(parseFloat(v) || 0, 20) });
+  }
+  askSequence(steps, () => builderFinalizeExpense(e));
+}
+
+function builderFinalizeExpense(e){
   let description, unitPrice = 0;
   const qty = 1;
-
-  if(type === "ehailing"){
-    unitPrice = parseFloat(document.getElementById("exp_amount").value) || 0;
-    description = `E-hailing - ${purpose || "trip"} (${date || "date TBC"})`;
-  } else if(type === "mileage"){
-    const km = parseFloat(document.getElementById("exp_km").value) || 0;
-    unitPrice = +(km * RATES.localMileagePerKm).toFixed(2);
-    description = `Local mileage - ${purpose || "travel"} (${date || "date TBC"}, ${km}km @ RM${RATES.localMileagePerKm.toFixed(2)}/km)`;
-  } else if(type === "fuel"){
-    unitPrice = parseFloat(document.getElementById("exp_amount").value) || 0;
-    description = `Fuel (out-of-state) - ${purpose || "trip"} (${date || "date TBC"})`;
-  } else if(type === "meal"){
-    unitPrice = Math.min(parseFloat(document.getElementById("exp_amount").value) || 0, 20);
-    description = `Meal claim (${date || "date TBC"})`;
+  if(e.type === "ehailing"){
+    unitPrice = e.amount;
+    description = `E-hailing - ${e.purpose || "trip"} (${e.date || "date TBC"})`;
+  } else if(e.type === "mileage"){
+    unitPrice = +((e.km || 0) * RATES.localMileagePerKm).toFixed(2);
+    const campaignPart = (e.campaign && e.campaign.trim().toLowerCase() !== "n/a") ? ` — ${e.campaign}` : "";
+    description = `Local mileage to ${e.destination || "destination"}${campaignPart} (${e.date || "date TBC"}, ${e.km || 0}km @ RM${RATES.localMileagePerKm.toFixed(2)}/km)`;
+  } else if(e.type === "parking"){
+    unitPrice = e.amount;
+    description = `Parking - ${e.event || "event"} (${e.date || "date TBC"})`;
+  } else if(e.type === "fuel"){
+    unitPrice = e.amount;
+    description = `Fuel (out-of-state) - ${e.purpose || "trip"} (${e.date || "date TBC"})`;
+  } else if(e.type === "meal"){
+    unitPrice = e.amount;
+    description = `Meal claim (${e.date || "date TBC"})`;
   }
-
-  if(!unitPrice){ alert("Enter the claim amount."); return; }
   items.push({ description, qty, unitPrice });
-  renderItems();
+  builderConfirmItemAdded(description);
 }
 
-function removeItem(i){
+function builderConfirmItemAdded(desc){
+  const total = computeItemTotal();
+  postBuilderHTML(`
+    <p>Added: <strong>${escapeHtml(desc)}</strong></p>
+    <p style="font-size:13px;color:var(--grey-dark);">Running total: RM ${total.toFixed(2)} (${items.length} item${items.length === 1 ? "" : "s"} so far)</p>
+  `);
+  builderPromptAddItem();
+}
+
+function builderRemoveItem(i){
   items.splice(i, 1);
-  renderItems();
+  builderShowSummary(true);
 }
 
-function renderItems(){
-  const body = document.getElementById("itemsBody");
-  body.innerHTML = "";
-  let total = 0;
-  items.forEach((it, i) => {
-    const amount = +(it.qty * it.unitPrice).toFixed(2);
-    total += amount;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${i + 1}</td><td>${escapeHtml(it.description)}</td><td>${it.qty}</td><td>${it.unitPrice.toFixed(2)}</td><td>${amount.toFixed(2)}</td><td><span class="rmBtn" onclick="removeItem(${i})">&times;</span></td>`;
-    body.appendChild(tr);
-  });
-  document.getElementById("grandTotal").textContent = total.toFixed(2);
+function builderShowSummary(isRefresh){
+  if(!isRefresh) postBuilderHTML("I'm done — show my invoice", "user");
+  builderSetInputEnabled(false);
+  const total = computeItemTotal();
+  const rows = items.map((it, i) => {
+    const amt = (it.qty * it.unitPrice).toFixed(2);
+    return `<tr><td>${i + 1}</td><td>${escapeHtml(it.description)}</td><td>${it.qty}</td><td>${it.unitPrice.toFixed(2)}</td><td>${amt}</td><td><span class="rmBtn" onclick="builderRemoveItem(${i})">&times;</span></td></tr>`;
+  }).join("");
+  const html = `
+    <h4>Your Invoice Summary</h4>
+    <table id="itemsTable" style="width:100%;">
+      <thead><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Amount</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><td colspan="4" style="text-align:right;font-weight:700;">GRAND TOTAL (RM)</td><td style="font-weight:700;">${total.toFixed(2)}</td><td></td></tr></tfoot>
+    </table>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="downloadInvoice()">Download Filled Invoice (PDF)</button>
+      <button class="onboard-btn secondary" onclick="draftEmail()">Draft Email to Armand</button>
+    </div>
+    <div class="onboard-btn-row"><button class="onboard-btn secondary" onclick="builderStartNew()">Start a New Invoice</button></div>
+    <p class="smallNote">Just double-check the numbers, then email it to armand@sushivid.com (cc your team lead) before month-end. Payment goes out on the last day of the month. Where applicable, attach receipts — for hard copy receipts, paste onto A4 paper and highlight the amount, date, and company name.</p>
+  `;
+  if(isRefresh){
+    // Replace the last bot bubble (the summary itself) instead of stacking duplicates
+    const bubbles = builderChat.querySelectorAll(".onboard-msg:not(.user)");
+    const last = bubbles[bubbles.length - 1];
+    if(last){ last.innerHTML = html; return; }
+  }
+  postBuilderHTML(html);
 }
 
-function getInvoiceState(){
-  return {
-    name: document.getElementById("inv_name").value.trim(),
-    role: document.getElementById("inv_role").value.trim(),
-    invoiceNo: document.getElementById("inv_no").value.trim(),
-    invoiceDate: document.getElementById("inv_date").value,
-    ic: document.getElementById("inv_ic").value.trim(),
-    bankAccName: document.getElementById("inv_bankAccName").value.trim(),
-    accountNumber: document.getElementById("inv_accNo").value.trim(),
-    bankName: document.getElementById("inv_bankName").value.trim(),
-    branch: document.getElementById("inv_branch").value.trim(),
-    swift: document.getElementById("inv_swift").value.trim()
-  };
+function builderStartNew(){
+  items = [];
+  postBuilderHTML(`<p>Starting a fresh invoice — your saved details are still here, so let's jump right to adding items.</p>`);
+  builderPromptAddItem();
 }
 
 function computeItemTotal(){
   let total = 0;
   items.forEach(it => total += it.qty * it.unitPrice);
   return +total.toFixed(2);
+}
+
+function getInvoiceState(){
+  return {
+    name: profile.name,
+    role: profile.role,
+    invoiceNo: "1",
+    invoiceDate: new Date().toISOString().slice(0, 10),
+    ic: profile.ic,
+    bankAccName: profile.bankAccName,
+    accountNumber: profile.accountNumber,
+    bankName: profile.bankName
+  };
 }
 
 function downloadTextFallback(s, total){
@@ -980,9 +1430,7 @@ function downloadTextFallback(s, total){
     "Payment Terms: Please issue transfer to:",
     `Name: ${s.bankAccName || s.name}`,
     `Account Number: ${s.accountNumber}`,
-    `Bank name: ${s.bankName}`,
-    `Branch: ${s.branch || "NA"}`,
-    `SWIFT Code: ${s.swift || "NA"}`, "",
+    `Bank name: ${s.bankName}`, "",
     "* This is a computer generated invoice and no signature is required."
   );
   const blob = new Blob([lines.join("\n")], { type: "text/plain" });
@@ -1076,15 +1524,13 @@ function downloadInvoice(){
   doc.text("Please issue transfer to:", marginX, ay); ay += 14;
   doc.text(`Name: ${s.bankAccName || s.name}`, marginX, ay); ay += 14;
   doc.text(`Account Number: ${s.accountNumber || ""}`, marginX, ay); ay += 14;
-  doc.text(`Bank name: ${s.bankName || ""}`, marginX, ay); ay += 14;
-  doc.text(`Branch: ${s.branch || "NA"}`, marginX, ay); ay += 14;
-  doc.text(`SWIFT Code: ${s.swift || "NA"}`, marginX, ay); ay += 24;
+  doc.text(`Bank name: ${s.bankName || ""}`, marginX, ay); ay += 24;
 
   doc.setFontSize(8);
   doc.setTextColor(107, 107, 112);
   doc.text("* This is a computer generated invoice and no signature is required.", marginX, ay);
   ay += 12;
-  doc.text("Generated via SushiVid HR Assistant.", marginX, ay);
+  doc.text("Generated via Haru Chan, SushiVid's HR Assistant.", marginX, ay);
 
   doc.save(`Invoice_${(s.name || "draft").replace(/\s+/g, "_")}_${s.invoiceDate || ""}.pdf`);
 }
@@ -1113,10 +1559,371 @@ function draftEmail(){
   window.location.href = `mailto:armand@sushivid.com?subject=${subject}&body=${body}`;
 }
 
-// defaults
-document.getElementById("inv_date").value = new Date().toISOString().slice(0, 10);
-renderExpenseFields();
-renderItems();
+
+// ---------------------------------------------------------------------
+// NEW EMPLOYEE ONBOARDING — a real back-and-forth chat, same pattern as
+// the Invoice/Claim builder: a shared input bar at the bottom for
+// free-text answers (type + Enter/Send), and quick-reply buttons in the
+// bot bubble for Yes/No or multiple-choice moments. No "Continue"
+// buttons anywhere — every tap or submit immediately advances the chat.
+// ---------------------------------------------------------------------
+let onboardStarted = false;
+const onboardChat = document.getElementById("onboardChat");
+const onboardInputEl = document.getElementById("onboardInput");
+const onboardSendBtn = document.getElementById("onboardSendBtn");
+const onboard = {
+  name: "",
+  familyName: "",
+  isIntern: "",
+  phone: "",
+  role: "",
+  checks: {
+    access: false,
+    waGroup: false,
+    email: false,
+    filenaming: false,
+    ethics: false
+  }
+};
+
+function kbAnswer(sourceName){
+  const entry = KB.find(e => e.source === sourceName);
+  return entry ? entry.answer.replace(/\n/g, "<br>") : "";
+}
+
+function postOnboardHTML(html, who){
+  const div = document.createElement("div");
+  div.className = "onboard-msg" + (who === "user" ? " user" : "");
+  div.innerHTML = html;
+  onboardChat.appendChild(div);
+  onboardChat.scrollTop = onboardChat.scrollHeight;
+  return div;
+}
+
+// Disable the input bar while a quick-reply bubble is showing (nothing to
+// type yet); enable it with a helpful placeholder while waiting on a
+// free-text answer.
+function onboardSetInputEnabled(enabled, placeholder){
+  onboardInputEl.disabled = !enabled;
+  onboardSendBtn.disabled = !enabled;
+  onboardInputEl.placeholder = placeholder || (enabled ? "Type your answer..." : "Pick an option above...");
+  if(enabled){ onboardInputEl.value = ""; onboardInputEl.focus(); }
+}
+
+let onboardAwaitingCallback = null;
+
+// Posts a bot question, then waits for the next free-text submission from
+// the shared input bar before calling back with the answer.
+function onboardAsk(promptHtml, placeholder, callback){
+  postOnboardHTML(promptHtml);
+  onboardAwaitingCallback = callback;
+  onboardSetInputEnabled(true, placeholder);
+}
+
+function onboardSubmitAnswer(){
+  if(onboardAwaitingCallback === null) return; // not currently expecting free text
+  const val = onboardInputEl.value.trim();
+  postOnboardHTML(val ? escapeHtml(val) : "(skipped)", "user");
+  const cb = onboardAwaitingCallback;
+  onboardAwaitingCallback = null;
+  onboardSetInputEnabled(false);
+  cb(val);
+}
+
+onboardSendBtn.onclick = onboardSubmitAnswer;
+onboardInputEl.addEventListener("keydown", e => { if(e.key === "Enter") onboardSubmitAnswer(); });
+
+// Walks through a list of {prompt, placeholder, required, requiredMsg, onAnswer}
+// steps one at a time via the chat input, re-asking if a required answer is
+// missing, then calls onComplete() once every step has been answered.
+function onboardAskSequence(steps, onComplete, index){
+  index = index || 0;
+  if(index >= steps.length){ onComplete(); return; }
+  const step = steps[index];
+  onboardAsk(step.prompt, step.placeholder, (val) => {
+    if(step.required && !val){
+      postOnboardHTML(`<p>${step.requiredMsg || "Just need an answer here to keep going — mind trying again?"}</p>`);
+      onboardAskSequence(steps, onComplete, index);
+      return;
+    }
+    step.onAnswer(val);
+    onboardAskSequence(steps, onComplete, index + 1);
+  });
+}
+
+function startOnboarding(){
+  onboardAsk(`
+    <p>Hi there, welcome to SushiVid! 🎉 I'm Haru Chan, your HR Assistant, and I'll walk you through getting set up — one step at a time, so it doesn't feel overwhelming.</p>
+    <p>To kick things off, what's your name?</p>
+  `, "e.g. Jane Doe", (name) => {
+    if(!name){
+      postOnboardHTML(`<p>Just need your name so we know who's saying hi — mind trying again?</p>`);
+      startOnboarding();
+      return;
+    }
+    onboard.name = name;
+    postOnboardHTML(`<p>Great to meet you, ${escapeHtml(name)}! Let's get you set up. This'll just take a few minutes.</p>`);
+    onboardStep1();
+  });
+}
+
+// ---- STEP 1: Access setup ----
+function onboardStep1(){
+  postOnboardHTML(`
+    <h4>Step 1 of 3 — Getting Your Access Sorted</h4>
+    <p>Have you already got your email, Slack, and SushiVid platform access set up?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="onboardAccessAnswer(true)">Yes, all set</button>
+      <button class="onboard-btn secondary" onclick="onboardAccessAnswer(false)">Not yet</button>
+    </div>
+  `);
+}
+
+function onboardAccessAnswer(hasAccess){
+  postOnboardHTML(hasAccess ? "Yes, all set" : "Not yet", "user");
+  if(hasAccess){
+    onboard.checks.access = true;
+    postOnboardHTML(`<p>Perfect, one less thing to do — moving on!</p>`);
+    onboardStep2();
+    return;
+  }
+  postOnboardHTML(`<p>No worries at all! Let's grab a few details so we can get this moving for you.</p>`);
+  onboardAskSequence([
+    {
+      prompt: "What's your family name?",
+      placeholder: "e.g. Foong",
+      required: true,
+      requiredMsg: "Just need a family name to fill in the request — mind trying again?",
+      onAnswer: (val) => { onboard.familyName = val; }
+    }
+  ], onboardAskIntern);
+}
+
+function onboardAskIntern(){
+  postOnboardHTML(`
+    <p>Are you joining us as an intern?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="onboardInternAnswer('Yes')">Yes, I'm an intern</button>
+      <button class="onboard-btn secondary" onclick="onboardInternAnswer('No')">No</button>
+    </div>
+  `);
+}
+
+function onboardInternAnswer(val){
+  onboard.isIntern = val;
+  postOnboardHTML(val === "Yes" ? "Yes, I'm an intern" : "No", "user");
+  onboardAskSequence([
+    {
+      prompt: "Lastly, what's your mobile number? Jacky will use this to get things set up.",
+      placeholder: "e.g. 0121234567",
+      required: true,
+      requiredMsg: "Just need a mobile number so Jacky can reach you — mind trying again?",
+      onAnswer: (val) => { onboard.phone = val; }
+    }
+  ], onboardGenerateAccessRequest);
+}
+
+function onboardGenerateAccessRequest(){
+  const { name, familyName, isIntern, phone } = onboard;
+  const message = `New staff, please create email, invite to slack and create sushivid admin account.\nName: ${name}\nFamily Name: ${familyName}\nIntern: ${isIntern}\nMobile: ${phone}`;
+  const waLink = `https://wa.me/60174912227?text=${encodeURIComponent(message)}`;
+
+  postOnboardHTML(`
+    <p>All set — tap below to open WhatsApp with this message ready to send to Jacky:</p>
+    <p style="background:var(--grey);padding:10px;border-radius:8px;font-size:13px;white-space:pre-wrap;">${escapeHtml(message)}</p>
+    <div class="onboard-btn-row"><a class="onboard-btn wa" href="${waLink}" target="_blank" style="text-decoration:none;display:inline-block;">Open WhatsApp to Jacky</a></div>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardAccessDone()">I've sent it to Jacky ✅</button></div>
+  `);
+}
+
+function onboardAccessDone(){
+  onboard.checks.access = true;
+  postOnboardHTML("I've sent it to Jacky ✅", "user");
+  postOnboardHTML(`<p>Perfect, thank you! Moving on to the next step.</p>`);
+  onboardStep2();
+}
+
+// ---- STEP 2: Platform walkthrough ----
+function onboardStep2(){
+  postOnboardHTML(`
+    <h4>Step 2 of 3 — Getting to Know Our Platforms</h4>
+    <p>Let's go through these one at a time.</p>
+    <p><strong>Email:</strong> used for recapping messages to clients, and sending anything official to SushiVid team leads — basically the more formal side of communication. For anything less official, WhatsApp is our go-to.</p>
+    <p>Are you already on our SushiVid Team WhatsApp group?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="onboardWaGroupAnswer(true)">Yes, I'm in it</button>
+      <button class="onboard-btn secondary" onclick="onboardWaGroupAnswer(false)">Not yet</button>
+    </div>
+  `);
+}
+
+function onboardWaGroupAnswer(inGroup){
+  postOnboardHTML(inGroup ? "Yes, I'm in it" : "Not yet", "user");
+  onboard.checks.waGroup = inGroup;
+  if(!inGroup){
+    postOnboardHTML(`<p>No problem — just let Armand know and he'll get you added.</p>`);
+  }
+  onboardEmailTips();
+}
+
+function onboardEmailTips(){
+  postOnboardHTML(`
+    <h4>A Quick Word on Email</h4>
+    <p>Since a lot of us are learning this on the job, here's a quick refresher on writing good emails:</p>
+    <p>${kbAnswer("Email Writing Guidelines")}</p>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardEmailAck()">Got it, thanks 👍</button></div>
+  `);
+}
+
+function onboardEmailAck(){
+  onboard.checks.email = true;
+  postOnboardHTML("Got it, thanks 👍", "user");
+  onboardFileNamingTips();
+}
+
+function onboardFileNamingTips(){
+  postOnboardHTML(`
+    <h4>Keeping Files Organised</h4>
+    <p>This one matters a lot to us — a little discipline here saves everyone a lot of headache later.</p>
+    <p>${kbAnswer("File Naming Convention")}</p>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardFileNamingAck()">Got it, thanks 👍</button></div>
+  `);
+}
+
+function onboardFileNamingAck(){
+  onboard.checks.filenaming = true;
+  postOnboardHTML("Got it, thanks 👍", "user");
+  onboardExtras();
+}
+
+function onboardExtras(){
+  postOnboardHTML(`
+    <h4>A Few Extras (Good to Know, Not Urgent)</h4>
+    <p>No pressure to memorise these right now, but worth a skim whenever you get a moment:</p>
+    <p><strong>Writing a memo:</strong> ${kbAnswer("Writing Memos")}</p>
+    <p><strong>Applying for leave:</strong> ${kbAnswer("Leave Application Process")}</p>
+    <p><strong>Our WFH policy:</strong> ${kbAnswer("WFH Policy")}</p>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardExtrasAck()">Sounds good 👍</button></div>
+  `);
+}
+
+function onboardExtrasAck(){
+  postOnboardHTML("Sounds good 👍", "user");
+  onboardHrAssistantIntro();
+}
+
+function onboardHrAssistantIntro(){
+  const topics = SUGGESTIONS.concat([
+    "Sick leave, maternity/paternity leave, compassionate & marriage leave",
+    "Event attendance pay & work trip allowances",
+    "Meeting prep, calendar habits, decision-making & conflict resolution",
+    "Company tools (Slack, WhatsApp, Notion, Sapotmou, DingTalk, Canva, Capcut)"
+  ]);
+  postOnboardHTML(`
+    <h4>Meet Haru Chan — the "Ask HR" Tab</h4>
+    <p>Whenever you have a random HR question later, head to the <strong>Ask HR</strong> tab up top and chat with Haru Chan — she can answer things like:</p>
+    <ul>${topics.map(t => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
+    <p>If she doesn't know something, she'll point you to HR directly rather than guess.</p>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardHrIntroAck()">Got it!</button></div>
+  `);
+}
+
+function onboardHrIntroAck(){
+  postOnboardHTML("Got it!", "user");
+  onboardPlatformInfo();
+}
+
+function onboardPlatformInfo(){
+  postOnboardHTML(`
+    <h4>The SushiVid Platform</h4>
+    <p>Once your account's ready, you can log in at <strong>account.sushivid.com/admins/sign_in</strong>.</p>
+    <p>Depending on your role, you'll want different Loom videos to get started. Which of these are you working on?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="onboardSelectRole('KOL Search')">KOL Search</button>
+      <button class="onboard-btn" onclick="onboardSelectRole('Campaign Management')">Campaign Management</button>
+      <button class="onboard-btn" onclick="onboardSelectRole('Admin')">Admin</button>
+      <button class="onboard-btn" onclick="onboardSelectRole('ThousandGold')">ThousandGold</button>
+    </div>
+  `);
+}
+
+function onboardSelectRole(role){
+  onboard.role = role;
+  postOnboardHTML(role, "user");
+  if(role === "Admin" || role === "ThousandGold"){
+    postOnboardHTML(`<p>Good news — as ${escapeHtml(role)}, you won't need platform access, so there's nothing further to set up here!</p>`);
+  } else {
+    postOnboardHTML(`<p>Loom videos for <strong>${escapeHtml(role)}</strong> are being put together — Wen will share these with you shortly.</p>`);
+  }
+  postOnboardHTML(`
+    <h4>Slack</h4>
+    <p>We'll also walk you through how we use Slack — which channels exist and which ones you'll need to join. Wen will share this with you shortly.</p>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardSlackAck()">Got it, on to Step 3</button></div>
+  `);
+}
+
+function onboardSlackAck(){
+  postOnboardHTML("Got it, on to Step 3", "user");
+  onboardStep3();
+}
+
+// ---- STEP 3: Office etiquette ----
+function onboardStep3(){
+  postOnboardHTML(`
+    <h4>Step 3 of 3 — Life Around the Office</h4>
+    <p>Almost done! Since we're a small team sharing a small space, a few things that help keep it pleasant for everyone:</p>
+    <ol>
+      <li>Please don't toss trash if the bin has no liner, or if it's overflowing — just pop in a new liner. After washing your dishes, don't leave anything sitting in the sink. And in the washroom, please treat it like home: clean up after yourself, and keep the toilet floor dry.</li>
+      <li>Turn off electrical appliances when they're not in use.</li>
+      <li>If you're the only one in the office, please don't step out and leave the place unattended.</li>
+      <li>No smoking in the office or corridors — the corridors don't ventilate well.</li>
+      <li>Please don't leave food out in the open, it tends to invite pests.</li>
+      <li>Please don't leave the bidet running after use — it's an older building and the water system isn't built for that kind of pressure.</li>
+      <li>A wipe of the whiteboard after use goes a long way for the next person.</li>
+      <li>And please take good care of our equipment — here's a quick guide: ${kbAnswer("Laptop Care")}</li>
+    </ol>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardEthicsAck()">I've read through this ✅</button></div>
+  `);
+}
+
+function onboardEthicsAck(){
+  onboard.checks.ethics = true;
+  postOnboardHTML("I've read through this ✅", "user");
+  onboardFinish();
+}
+
+function onboardFinish(){
+  onboardSetInputEnabled(false);
+  const now = new Date().toLocaleString();
+  const checklist = [
+    ["Email / Slack / SushiVid access created", onboard.checks.access],
+    ["Added to SushiVid team WhatsApp group", onboard.checks.waGroup],
+    ["Understands how to write a proper email", onboard.checks.email],
+    ["Understands how to name files", onboard.checks.filenaming],
+    ["Read through office etiquette guidelines", onboard.checks.ethics]
+  ];
+  const checklistText = checklist.map(([label, done]) => `${done ? "[x]" : "[ ]"} ${label}`).join("\n");
+
+  const subject = encodeURIComponent(`Onboarding Completed - ${onboard.name}`);
+  const body = encodeURIComponent([
+    `New employee onboarding completed via Haru Chan, SushiVid's HR Assistant.`, ``,
+    `Name: ${onboard.name}`,
+    `Family Name: ${onboard.familyName || "(not provided - already had access)"}`,
+    `Intern: ${onboard.isIntern || "(not provided - already had access)"}`,
+    `Mobile: ${onboard.phone || "(not provided - already had access)"}`,
+    `Role: ${onboard.role || "(not selected)"}`,
+    `Completed at: ${now}`, ``,
+    `Checklist:`,
+    checklistText
+  ].join("\n"));
+
+  postOnboardHTML(`
+    <p>That's everything, ${escapeHtml(onboard.name)} — welcome to SushiVid! 🎉 We're really glad to have you here.</p>
+    <p>One last click to let Armand and Wen know you've completed onboarding, so it's on record:</p>
+    <div class="onboard-btn-row"><a class="onboard-btn" href="mailto:armand@sushivid.com?cc=yuhwenfoong@gmail.com&subject=${subject}&body=${body}" style="text-decoration:none;display:inline-block;">Send Onboarding Confirmation</a></div>
+    <p style="margin-top:12px;font-size:12.5px;color:var(--grey-dark);">Whenever you have questions later, just head back to the Ask HR tab and chat with Haru Chan — happy to help anytime.</p>
+  `);
+}
 </script>
 
 </body>
