@@ -476,7 +476,8 @@
 // ---------------------------------------------------------------------
 const RATES = {
   officeOTPerHour: 20,
-  eventOTPer3hrBlock: 100,
+  weekendHolidayOTBase: 100, // flat, half day (min. 3-hour commitment, excl. travel time)
+  weekendHolidayOTHigh: 200, // flat, full day (excl. travel time)
   mealClaim: 20,
   localMileagePerKm: 0.5
 };
@@ -489,7 +490,7 @@ const RATES = {
 const KB = [
   {
     keywords: ["overtime","ot","rate","per hour","hourly","extra hours","late night","office ot","office-based"],
-    answer: "Office-based OT: RM20/hour after 7:30 PM (excludes non-standard schedules).\nEvent-based OT (off-site work, e.g. campaigns): RM100 per 3-hour block, prorated for partial hours — travel time doesn't count.\nNo OT is claimable for WFH, unless it's been expressly pre-approved in writing by your manager.\nHead to the \"Fill My Invoice / Claim\" tab and I'll calculate the amount for you.",
+    answer: "Office-based OT: RM20/hour after 7:30 PM (excludes non-standard schedules).\nEvent/Campaign OT (off-site work): if it falls on a normal work day, it follows the same office-based rate (RM20/hour) plus a transport allowance. If it falls on a weekend or public holiday, it follows the Weekend/Public Holiday rate instead.\nWeekend/Public Holiday OT: RM100 flat for a half day (minimum 3-hour commitment), or RM200 flat for a full day (excludes travel time) — transport can also be claimed. Meals are included automatically: 1 meal claim (RM20) for 5 hours or less, 2 meal claims (RM40) for more than 5 hours.\nNo OT is claimable for WFH, unless it's been expressly pre-approved in writing by your manager.\nHead to the \"Fill My Invoice / Claim\" tab and I'll calculate the amount for you.",
     source: "Overtime (OT) Compensation"
   },
   {
@@ -499,7 +500,7 @@ const KB = [
   },
   {
     keywords: ["weekend","public holiday work","holiday work","campaign work","rotational","shift"],
-    answer: "Work on weekends or public holidays for marketing campaigns is assigned on a rotational basis. You either comply with the assigned shift or arrange a replacement (subject to manager approval). It's compensated at RM100 per 3-hour block, or via time-in-lieu, as mutually agreed.",
+    answer: "Work on weekends or public holidays for marketing campaigns is assigned on a rotational basis. You either comply with the assigned shift or arrange a replacement (subject to manager approval). It's compensated at RM100 flat for a half day (minimum 3-hour commitment), or RM200 flat for a full day (excludes travel time), plus transport can be claimed — or via time-in-lieu, as mutually agreed. Meals are included automatically: 1 meal claim (RM20) for 5 hours or less, 2 meal claims (RM40) for more than 5 hours.",
     source: "Weekend, Weekday and Public Holiday Work"
   },
   {
@@ -710,7 +711,7 @@ const KB = [
   },
   {
     keywords: ["urgent vs important","prioritize work","priority matrix","eisenhower matrix","how to prioritise"],
-    answer: "It helps to sort your work by urgent vs. important: Quadrant 1 (urgent & important), Quadrant 2 (important, not urgent), Quadrant 3 (urgent, not important), and Quadrant 4 (neither). Ideally, most of your time lives in Quadrants 1 and 2 — anything in Quadrant 4 can usually wait. If something isn't urgent or important to you personally but affects a colleague, it's kind to help out where you can, so long as it doesn't eat into your own priorities. Keeping more of your time in Quadrant 2 also just makes for a calmer, less rushed day.",
+    answer: "At SushiVid, we define it like this: Urgent = something with a deadline that matters. Important = something that's directly part of your job description. Sorting your work by these two: Quadrant 1 (urgent & important), Quadrant 2 (important, not urgent), Quadrant 3 (urgent, not important), and Quadrant 4 (neither). Ideally, most of your time lives in Quadrants 1 and 2 — anything in Quadrant 4 can usually wait.\nIn practice: client-facing work — editing a client's video, helping with fulfilment, or sourcing KOLs for sales — is almost always both urgent and important, so it comes first. SushiVid's own social media content is always a lower priority than client work, even if it feels pressing in the moment.\nIf something isn't urgent or important to you personally but affects a colleague, it's kind to help out where you can, so long as it doesn't eat into your own priorities.",
     source: "Urgent vs Important Matrix"
   },
   {
@@ -1372,10 +1373,21 @@ function builderShowOTForm(){
     <p>What type of overtime is this?</p>
     <div class="onboard-btn-row">
       <button class="onboard-btn" onclick="builderOTTypeChosen('office')">Office-based (RM20/hr after 7:30PM)</button>
-      <button class="onboard-btn" onclick="builderOTTypeChosen('event')">Event/Campaign off-site (RM100/3hr)</button>
-      <button class="onboard-btn" onclick="builderOTTypeChosen('holiday')">Weekend/Public Holiday (RM100/3hr)</button>
+      <button class="onboard-btn" onclick="builderOTTypeChosen('event')">Event/Campaign off-site</button>
+      <button class="onboard-btn" onclick="builderOTTypeChosen('holiday')">Weekend/Public Holiday (RM100 half day, RM200 full day)</button>
     </div>
   `);
+}
+
+// Sunday = 0, Saturday = 6. Used to decide whether an "Event/Campaign
+// off-site" OT falls on a normal work day (follows office-based rules)
+// or a weekend (follows the Weekend/Public Holiday flat rate).
+function isWeekendDate(dateStr){
+  if(!dateStr) return false;
+  const d = new Date(dateStr + "T00:00:00");
+  if(isNaN(d.getTime())) return false;
+  const day = d.getDay();
+  return day === 0 || day === 6;
 }
 
 function builderOTTypeChosen(type){
@@ -1409,13 +1421,90 @@ function builderOTTypeChosen(type){
       onAnswer: v => o.meal = /^y/i.test(v)
     });
   }
-  askSequence(steps, () => builderFinalizeOT(o));
+  askSequence(steps, () => builderOTPostBaseSteps(o));
+}
+
+// Event/Campaign OT that lands on a normal work day follows the same
+// office-based rules (RM20/hr + the past-8:30PM meal claim question)
+// before we move on to asking about transport.
+function builderOTPostBaseSteps(o){
+  if(o.type === "event"){
+    o.isWeekend = isWeekendDate(o.date);
+    if(!o.isWeekend){
+      askSequence([
+        {
+          prompt: "Since that falls on a normal work day, this follows office-based OT rules. Did you work past 8:30 PM? (yes/no — this adds a RM20 meal claim)",
+          placeholder: "yes or no",
+          onAnswer: v => o.meal = /^y/i.test(v)
+        }
+      ], () => builderAskOTTransport(o));
+      return;
+    }
+  }
+  if(o.type === "holiday" || (o.type === "event" && o.isWeekend)){
+    builderAskDayLength(o);
+    return;
+  }
+  builderAskOTTransport(o);
+}
+
+let builderPendingOT = null;
+
+// Weekend/Public Holiday OT (and Event OT that fell on a weekend) is a
+// simple flat rate: half day or full day, rather than an hourly tier —
+// easier for everyone to reason about than exact hour thresholds.
+function builderAskDayLength(o){
+  builderPendingOT = o;
+  postBuilderHTML(`
+    <p>Was this a half day or full day (excluding travel time)?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderDayLengthAnswer('half')">Half day (RM100)</button>
+      <button class="onboard-btn secondary" onclick="builderDayLengthAnswer('full')">Full day (RM200)</button>
+    </div>
+  `);
+}
+
+function builderDayLengthAnswer(length){
+  postBuilderHTML(length === "half" ? "Half day (RM100)" : "Full day (RM200)", "user");
+  const o = builderPendingOT;
+  o.dayLength = length;
+  builderAskOTTransport(o);
+}
+
+function builderAskOTTransport(o){
+  builderPendingOT = o;
+  postBuilderHTML(`
+    <p>Any transport costs to add for this OT?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="builderOTTransportAnswer(true)">Yes, add transport</button>
+      <button class="onboard-btn secondary" onclick="builderOTTransportAnswer(false)">No</button>
+    </div>
+  `);
+}
+
+function builderOTTransportAnswer(wantsTransport){
+  postBuilderHTML(wantsTransport ? "Yes, add transport" : "No", "user");
+  const o = builderPendingOT;
+  if(!wantsTransport){
+    builderFinalizeOT(o);
+    return;
+  }
+  askSequence([
+    {
+      prompt: "Transport amount (RM)?", placeholder: "e.g. 25",
+      required: true, requiredMsg: "What was the transport amount?",
+      onAnswer: v => o.transportAmount = parseFloat(v) || 0
+    }
+  ], () => builderFinalizeOT(o));
 }
 
 function builderFinalizeOT(o){
   let addedDesc = "";
-  if(o.type === "office"){
-    const desc = `Office OT - ${o.event}: ${o.task} (${o.date || "date TBC"}, ${o.hours}h after 7:30PM)`;
+  const isOfficeRate = o.type === "office" || (o.type === "event" && !o.isWeekend);
+
+  if(isOfficeRate){
+    const label = o.type === "office" ? "Office OT" : "Event OT (work day)";
+    const desc = `${label} - ${o.event}: ${o.task} (${o.date || "date TBC"}, ${o.hours}h after 7:30PM)`;
     items.push({ description: desc, qty: o.hours, unitPrice: RATES.officeOTPerHour });
     addedDesc = desc;
     if(o.meal){
@@ -1423,14 +1512,30 @@ function builderFinalizeOT(o){
       addedDesc += " + meal claim";
     }
   } else {
-    const blocks = o.hours / 3;
-    const amount = +(blocks * RATES.eventOTPer3hrBlock).toFixed(2);
-    const label = o.type === "event" ? "Event OT" : "Weekend/Holiday OT";
-    const desc = `${label} - ${o.event}: ${o.task} (${o.date || "date TBC"}, ${o.hours}h)`;
+    const amount = o.dayLength === "full" ? RATES.weekendHolidayOTHigh : RATES.weekendHolidayOTBase;
+    const dayLabel = o.dayLength === "full" ? "full day" : "half day";
+    const label = o.type === "event" ? "Event OT (weekend)" : "Weekend/Holiday OT";
+    const desc = `${label} - ${o.event}: ${o.task} (${o.date || "date TBC"}, ${o.hours}h excl. travel, ${dayLabel}, flat RM${amount})`;
     items.push({ description: desc, qty: 1, unitPrice: amount });
     addedDesc = desc;
+
+    // Meal claims are bundled in automatically for weekend/holiday OT,
+    // based on hours worked: more than 5 hours gets 2 meals, otherwise 1.
+    const mealCount = o.hours > 5 ? 2 : 1;
+    items.push({
+      description: `Meal claim (${mealCount} meal${mealCount > 1 ? "s" : ""}, ${o.hours}h shift) - ${o.date || "date TBC"}`,
+      qty: mealCount, unitPrice: RATES.mealClaim
+    });
+    addedDesc += ` + ${mealCount} meal claim${mealCount > 1 ? "s" : ""}`;
   }
+
+  if(o.transportAmount){
+    items.push({ description: `Transport allowance - ${o.event} (${o.date || "date TBC"})`, qty: 1, unitPrice: o.transportAmount });
+    addedDesc += " + transport";
+  }
+
   builderConfirmItemAdded(addedDesc);
+  builderPendingOT = null;
 }
 
 function builderShowExpenseForm(){
@@ -1967,6 +2072,48 @@ function onboardExtras(){
 
 function onboardExtrasAck(){
   postOnboardHTML("Sounds good 👍", "user");
+  onboardUrgentImportant();
+}
+
+// Walks through how SushiVid defines urgent vs important, with a concrete
+// client-work-comes-first example, and offers more guidance if it doesn't
+// click the first time.
+function onboardUrgentImportant(){
+  postOnboardHTML(`
+    <h4>How We Think About Urgent vs Important</h4>
+    <p>There's always a lot going on, so it helps to have a shared way of deciding what to work on first. Here's how we define it at SushiVid:</p>
+    <p><strong>Urgent</strong> = something with a deadline that matters.<br>
+    <strong>Important</strong> = something that's directly part of your job description.</p>
+    <p>In practice: client-facing work — editing a client's video, helping with fulfilment, or sourcing KOLs for sales — is almost always both urgent and important, so it should come first. SushiVid's own social media content, on the other hand, is always a lower priority than client work, even if it feels pressing in the moment.</p>
+    <p>Does that make sense, or would it help to walk through it a bit more?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="onboardUrgentImportantAck(true)">Got it, makes sense</button>
+      <button class="onboard-btn secondary" onclick="onboardUrgentImportantAck(false)">Still a bit unclear</button>
+    </div>
+  `);
+}
+
+function onboardUrgentImportantAck(understood){
+  postOnboardHTML(understood ? "Got it, makes sense" : "Still a bit unclear", "user");
+  if(understood){
+    onboardHrAssistantIntro();
+    return;
+  }
+  postOnboardHTML(`
+    <p>No worries, here's another way to look at it:</p>
+    <ul>
+      <li>Ask yourself: "Does this have a deadline that matters?" If yes, it's <strong>urgent</strong>.</li>
+      <li>Ask yourself: "Is this literally part of what I was hired to do?" If yes, it's <strong>important</strong>.</li>
+      <li>A task can be both, one, or neither — most of your day should go toward things that are both urgent and important.</li>
+      <li>Rule of thumb at SushiVid: client work always comes before internal SushiVid content. If you're ever torn between finishing a client's video edit and knocking out a SushiVid social media post, the client's video wins, every time.</li>
+    </ul>
+    <p>If you're ever still unsure in the moment, just ask your team lead — that's exactly the kind of judgment call worth a quick check-in.</p>
+    <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardUrgentImportantContinue()">Got it, thanks</button></div>
+  `);
+}
+
+function onboardUrgentImportantContinue(){
+  postOnboardHTML("Got it, thanks", "user");
   onboardHrAssistantIntro();
 }
 
