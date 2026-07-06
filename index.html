@@ -322,6 +322,7 @@
       <label>Role / Department<input id="inv_role" type="text" placeholder="e.g. Marketing Executive"></label>
       <label>Invoice No<input id="inv_no" type="text" value="1"></label>
       <label>Invoice Date<input id="inv_date" type="date"></label>
+      <label>IC Number <span style="font-weight:400;">(required on your first invoice)</span><input id="inv_ic" type="text" placeholder="e.g. 000529-14-1015"></label>
     </div>
 
     <h3>Bank Details (for payment)</h3>
@@ -391,7 +392,7 @@
       <button class="primaryBtn" onclick="downloadInvoice()">Download Filled Invoice (PDF)</button>
       <button class="secondaryBtn" onclick="draftEmail()">Draft Email to Armand</button>
     </div>
-    <p class="smallNote">This fills in the official SushiVid invoice format automatically, with amounts calculated from current policy rates — no blank template to figure out. Just double-check the numbers, then email it to armand@sushivid.com (cc your team lead) before month-end. Payment goes out on the last day of the month (allow 1-2 days processing buffer).</p>
+    <p class="smallNote">This fills in the official SushiVid invoice format automatically, with amounts calculated from current policy rates — no blank template to figure out. Just double-check the numbers, then email it to armand@sushivid.com (cc your team lead) before month-end. Payment goes out on the last day of the month (allow 1-2 days processing buffer).<br><br>Reminder: include your IC number if this is your first invoice (government requirement). Where applicable, attach receipts — for hard copy receipts, paste onto A4 paper and highlight the amount, date, and company name so the info survives even if the receipt ink fades over time.</p>
   </div>
 </div>
 
@@ -435,8 +436,8 @@ const KB = [
   },
   {
     keywords: ["wfh","work from home","remote","remote work"],
-    answer: "WFH is allowed at your manager's discretion, and requires: a dedicated workspace, stable internet (min 10Mbps), a company-issued laptop only, and a quiet professional environment. The company can revoke WFH privileges or require office attendance at any time.\nNote: no OT is payable for remote work unless pre-approved in writing by your manager.",
-    source: "Place of Work"
+    answer: "WFH is something we're genuinely happy to offer, and it works best with a little structure: a dedicated workspace, stable internet (min 10Mbps), your company-issued laptop, and a quiet space to focus. A few day-to-day habits that help everyone stay in sync: share your plan for the day with your team lead by 9am, stay reachable on WhatsApp/Slack within 15-20 minutes, keep your calendar updated so people know when you're in a meeting, and give your team lead a quick wrap-up of what you got done at the end of the day. Cameras on during meetings, please!\nWe do see WFH as a privilege rather than a right, so there may be times your team lead asks you to come into the office (including the occasional weekend) — we'd really appreciate the same flexibility back, the way we try to extend it to you.\nIf you're new: we ask for a full month in-office first, just so you have the support to find your feet before working independently from home. When you're ready, send Jacky a photo of your home workstation and a screenshot of your internet speed for our records.\nOne more thing: OT isn't payable for remote work unless it's been pre-approved in writing by your manager.",
+    source: "WFH Policy"
   },
   {
     keywords: ["probation","probationary period","new hire period"],
@@ -449,14 +450,24 @@ const KB = [
     source: "Termination / Resignation"
   },
   {
-    keywords: ["annual leave","vacation","time off","pto","leave days","how many leave"],
+    keywords: ["annual leave","vacation","time off","leave days","how many leave"],
     answer: "14 working days of annual leave per year. Applications must go to your Head of Department at least 1 week before the leave starts.\nUnused leave is forfeited on 1 January the following year — no payout, except in cases of resignation, dismissal, retirement, or retrenchment (prorated payment may apply). Leave accumulation is possible only with written request and company approval.",
     source: "Annual Leave"
   },
   {
     keywords: ["apply for leave","leave application","how to apply leave","request leave","how do i apply","email for leave","leave approval","book leave"],
-    answer: "Email armand@sushivid.com and cc your team lead to apply for leave.\nImportant: approval is not automatic. Do not assume your leave is approved until you hear back. Any flights or hotels you book ahead of approval are booked at your own risk — if the leave isn't approved, that's on you.",
+    answer: "For annual leave, emergency leave, or replacement leave: email your team lead directly, and cc Armand (armand@sushivid.com) and Raj (raj@sushivid.com). In the email, please include the date(s) you're requesting, and whether it's a full day or half day (and if half day, morning or afternoon).\nYour team lead will need to approve it — anything requested within 72 hours is treated as emergency leave, so just let them know your reason in that case. Once it's approved, HR will update the internal tracking sheet.\nOne gentle reminder: approval isn't automatic, so please try to wait to hear back before locking in flights or hotels — we'd hate for you to be out of pocket if the timing doesn't work out.",
     source: "Leave Application Process"
+  },
+  {
+    keywords: ["medical certificate procedure","send mc","mc process","how to submit mc","no mc","sick leave process","mc to team lead","produce an mc","produce mc","cant produce mc","cannot produce mc","unable to produce mc","forgot mc","no mc produced"],
+    answer: "If you're taking MC, just give your team lead a heads-up as early as you can. Once you're back, send a copy of the MC to your team lead, cc'ing Armand (armand@sushivid.com) and Raj (raj@sushivid.com).\nIf for whatever reason an MC can't be produced, that time off will be treated as emergency leave instead (drawn from your annual leave) — just so you're aware going in.",
+    source: "Medical Certificate Procedure"
+  },
+  {
+    keywords: ["replacement leave","time off in lieu","work weekend time off","desk bound weekend","11.11 replacement leave","comp off","working weekend get time off","time off for working the weekend","time off for weekend work","day off after working weekend","get time off for weekend"],
+    answer: "If you're desk-bound over a weekend (managing drafts, messaging KOLs, handling an urgent pitch) you'll be given replacement leave for that time. \"Desk-bound\" is the key word — if a KOL takes 3 hours to reply and you only spend 10 minutes actually responding, that's 10 minutes of work, not 3 hours.\nIf your team works a bit on a weekend night, you're welcome to come in a little later the next working day. And if a campaign has you fully desk-bound on a weekend or public holiday (think 11.11 or 12.12), you'll be entitled to replacement leave for it. This is given at your team lead's discretion, usually in smaller 1-2 hour chunks rather than all at once, though over 3 hours counts as a half day and over 5 hours as a full day (again, team lead's call).\nA few practical notes: replacement leave needs to be used within 2 weeks of earning it, and it can't be banked up over time. There's no form for this — just email your team lead (cc Armand and Raj) with the date you'd like to take, and which day/event it's replacing.\nWe also try to keep weekends restful where we can — arranging KOL messages to send Friday, for example, so you're not stuck waiting on replies over the weekend.",
+    source: "Replacement Leave"
   },
   {
     keywords: ["sick leave","mc","medical certificate","sick day"],
@@ -525,7 +536,7 @@ const KB = [
   },
   {
     keywords: ["pip","performance improvement","underperforming","performance plan"],
-    answer: "A Performance Improvement Programme (PIP) may be activated for employees consistently underperforming. It's a confidential process involving the employee, Team Lead, and HR, with a 30/60/90-day timeline depending on role/seniority. If there's no satisfactory improvement, it can lead to termination.",
+    answer: "A Performance Improvement Programme (PIP) is something HR and your team lead may put together if you've been finding it hard to hit expectations in your role for a while — it's meant to be supportive rather than punitive, a clear, confidential plan (just between you, your team lead, and HR) that sets out what's needed, what help/resources you'll get, and a realistic timeline (usually 30/60/90 days depending on the role) to work towards it together. There'll be a proper conversation before it starts, and regular check-ins along the way. We'll always be honest that if things genuinely don't improve, it could eventually lead to termination — but the whole point of a PIP is to give you a real, supported shot at turning things around before it gets anywhere near that.",
     source: "Performance Improvement Programme (PIP)"
   },
   {
@@ -550,7 +561,7 @@ const KB = [
   },
   {
     keywords: ["invoice","submit invoice","invoice template","freelance invoice","contractor invoice","intern invoice","how to invoice","invoicing"],
-    answer: "Most employees on contract, freelance, or internship terms are required to submit a monthly invoice to get paid.\nEasiest way: go to the \"Fill My Invoice / Claim\" tab above — fill in your details and line items, and I'll generate the completed invoice for you (no blank template needed). Then email it to armand@sushivid.com (cc your team lead).",
+    answer: "Most employees on contract, freelance, or internship terms are required to submit a monthly invoice to get paid.\nEasiest way: go to the \"Fill My Invoice / Claim\" tab above — fill in your details and line items, and I'll generate the completed invoice for you (no blank template needed). Then email it to armand@sushivid.com (cc your team lead).\nIf this is your first invoice, remember to include your IC number — it's a government requirement.",
     source: "Invoicing",
     html: true
   },
@@ -563,10 +574,110 @@ const KB = [
     keywords: ["when do i get paid","payment date","payday","salary date","payment schedule","when is payday","when is salary","get paid","paid on","pay day","pay date","when paid","when will i be paid"],
     answer: "Payment is made on the last day of every month. Give it 1-2 days of processing buffer, especially if Wen is out of the country and can't approve on time.",
     source: "Payment Schedule"
+  },
+  {
+    keywords: ["ic number","ic","identity card","first invoice","government id","mykad"],
+    answer: "Please include your IC number when emailing Armand your invoice for the first time — this is required by the government. You don't need to repeat it on every invoice after that, just the first one.",
+    source: "Invoicing"
+  },
+  {
+    keywords: ["receipt","receipts","hard copy receipt","paste receipt","highlight receipt","physical receipt","receipt fading","receipt oxidise","proof of purchase"],
+    answer: "Where applicable, please provide receipts when filing claims — even if you've already taken a photo of it, do hang on to the physical copy too, just in case.\nFor hard copy receipts: paste them onto an A4 paper, and highlight the amount, the date, and the company name with a highlighter. Receipt ink can fade or oxidise over time, so this little step just makes sure those details are still readable whenever we need to look back at them.",
+    source: "Claims Documentation"
+  },
+  {
+    keywords: ["event attendance pay","event compensation","attend event pay","event outside working hours","weekend event pay","how much for event","event attendance rate","paid for attending an event","paid to attend an event","compensated for attending event","attending an event pay","get paid for attending"],
+    answer: "For events outside working hours or on weekends, compensation works like this: under 3 hours is RM100, 3-6 hours is RM200, 6-9 hours is RM300, and 9-12 hours is RM400. Your time is counted from when you've parked and reached the client location.\nTransport is covered too — Grab (Just Grab tier), petrol at RM0.50/km (from whichever is nearer, your home or the office, up to a full tank for longer distances), and parking (just not valet, unless you're a team lead). Food and drinks are on you, though.\nA couple of things worth knowing: if you're at an event just to meet a KOL socially rather than to work it, only transport/parking is claimable, not the attendance fee. As paid staff at an event, please wear your SushiVid t-shirt, and try to arrive a full hour before start time (already parked and on-site, since KOLs tend to show up 30 minutes early themselves). Bring proof of attendance for your team lead — generally we plan for 1 staff member per 10 KOLs at an event.",
+    source: "Event Attendance"
+  },
+  {
+    keywords: ["work trip","work trip allowance","international trip allowance","local trip allowance","travel allowance","rental car claim","business trip allowance"],
+    answer: "For work trips: local trips come with an RM80/day allowance for food, on top of transport and accommodation, and international trips get RM200/day. There isn't additional replacement leave for time spent on a work trip. If you're driving long-distance, petrol is covered by the tank, and if you need a rental car, SushiVid covers that at RM50/day.",
+    source: "Work Trip Guidelines"
+  },
+  {
+    keywords: ["moonlighting","side gig","side hustle","second job","freelance outside work","declare side job","grab driver side job","another job outside sushivid"],
+    answer: "We genuinely don't mind you having something going on outside of SushiVid — a side project, a bit of freelance work, whatever it is — as long as this stays your full-time priority. So if we ever need your help on a weekend or after hours, we're hoping you'll be able to say yes; if you truly can't make it, the kind thing to do is find a colleague who can cover for you.\nThis covers things like driving for Grab, freelance development, insurance work, or being an influencer/KOL yourself. The one thing we do ask, honestly, is that you let us know about it — whether it happens during work hours or not. We know that might feel like an awkward conversation, but it really is better to just tell us; if it comes up some other way instead, it leads to a formal warning, which nobody wants.\nA couple of specifics: doing any of this during work hours (declared or not) isn't something we can allow without you first taking leave for it, and that leave is still subject to approval — so, for example, taking leave during 11.11 for an outside gig wouldn't work if we're short-handed that day. And if it turns out to be anything in the influencer marketing space that wasn't declared (even helping manage a friend's or family member's business page), that's treated as a serious breach of trust and can lead to termination. We really don't say this to scare anyone — just to be upfront, because we'd always rather you tell us first.",
+    source: "Moonlighting Policy"
+  },
+  {
+    keywords: ["tools we use","what tools","which software","company tools","slack notion whatsapp"],
+    answer: "Here's what we use day-to-day: Slack for company updates and general communication, WhatsApp for talking to clients and other external parties (and sometimes within teams), Microsoft (email/Excel/PowerPoint/Forms), Notion for this handbook and other how-to guides, Sapotmou for proposals, KOL work, KOL payments, reporting and draft creation, DingTalk for door access, Canva for design work, and Capcut for video editing (at least for influencer TikTok content).",
+    source: "Company Tools"
+  },
+  {
+    keywords: ["how to write email","email etiquette","email tips","cc email","bcc email","email signature","declutter inbox","title an email"],
+    answer: "A few habits that go a long way: title your email clearly — it genuinely affects how quickly (and how seriously) it gets read. Know your objective before you write, since that shapes who needs to be cc'd and how you title it. Keep the body short, polite, and to the point. Sometimes a quick WhatsApp does the job faster than an email would.\nOn cc'ing: try to only cc people who really need to know, since cc'ing everyone on everything just trains people to stop reading. Bcc is generally used when someone's being looped in on a final message and doesn't need to follow the thread after. A clean, simple signature (not ten variations stacking up in one thread!) helps too, and it's worth setting aside a little time to keep your inbox tidy.\nAnd two last ones: try not to leave emails unanswered — trust is quick to lose and slow to rebuild — and if a thread has gone back and forth dozens of times, it's usually kinder to everyone to just start a fresh one.",
+    source: "Email Writing Guidelines"
+  },
+  {
+    keywords: ["file naming","name my files","file name convention","naming convention","how to name files","file naming format"],
+    answer: "Our file naming format is: YYMMDD - DEPT - Topic, for example \"231025 - HR - Company Memo (Company Trip)\". Using the creation date up front (in that YYMMDD order) makes files much easier to find and sort chronologically later, and it's a nicer alternative to stacking up V1/V2/Final/Final-Final versions — the date already tells you what's most recent.\nA couple of extra notes: what you save internally isn't necessarily what you'd send to a client — worth renaming before sending so it looks polished on their end (e.g. \"SushiVid Influencer Marketing Company Credentials\" rather than something with \"V2 Final for client\" in the title). We also use {EXT} as a tag if a client's name appears inside a document, just so we know to be careful with it. And for those inevitable screenshot/random drag-and-drop files — a little naming effort there helps future-you a lot. Temporary files (like KOL drafts) are best deleted once you're done with them, so your computer doesn't get cluttered and slow.",
+    source: "File Naming Convention"
+  },
+  {
+    keywords: ["prepare for meeting","meeting prep","before meeting","how to prepare meeting","meeting preparation"],
+    answer: "Meetings cost real time and money for everyone in the room, so a little prep goes a long way — as a rough guide, budget about as much prep time as the meeting itself needs, per person invited (e.g. a 5-person, 15-minute meeting is worth over an hour of collective prep). Try to arrive (or log on) around 30 minutes early to handle parking, registration, laptop setup, and wifi — and if it's virtual, get your camera ready and keep it on regardless of whether others do.\nIt also helps to know why you're there. If you can't think of a clear reason you're needed, it's worth asking your manager — sometimes the honest answer is that you don't need to be in that one.",
+    source: "Meeting Preparation"
+  },
+  {
+    keywords: ["meeting roles","who does what in a meeting","moderator meeting","notes taker meeting","timekeeper meeting"],
+    answer: "It helps for every meeting to have a few roles covered: a timekeeper/moderator to keep things on track, a lead decision-maker who steers the conversation, and a notes-taker who sends a recap afterwards (ideally within 2 hours — even just a quick WhatsApp summary is fine). One person can absolutely wear more than one hat if needed.",
+    source: "Meeting Roles"
+  },
+  {
+    keywords: ["after meeting","meeting follow up","meeting recap","thank you after meeting","post meeting"],
+    answer: "After a meeting, it really helps to send a short recap so everyone's aligned on what happens next and who's driving it. A quick thank-you message within 30 minutes (win or lose) leaves a good impression too. And once your part of the meeting is done, it's completely fine to excuse yourself if you've got other things to do — no need to sit through the rest out of politeness.",
+    source: "Meeting Follow-Up"
+  },
+  {
+    keywords: ["calendar","use calendar","block time","meeting naming calendar","focus time","calendar tips"],
+    answer: "A well-kept calendar helps you feel more in control of your time. A few tips: use a consistent naming convention for meetings, ideally one that tells you (and others) whether it's internal or external, virtual or in person, and which client/campaign it relates to. Block out quiet/focus time for yourself too, not just meetings with others. Give your calendar a regular refresh — clear out recurring meetings you're no longer following through on. And beyond meetings, your calendar can double as a gentle reminder system, whether that's a client follow-up or just checking in on a teammate.",
+    source: "Calendar Usage"
+  },
+  {
+    keywords: ["urgent vs important","prioritize work","priority matrix","eisenhower matrix","how to prioritise"],
+    answer: "It helps to sort your work by urgent vs. important: Quadrant 1 (urgent & important), Quadrant 2 (important, not urgent), Quadrant 3 (urgent, not important), and Quadrant 4 (neither). Ideally, most of your time lives in Quadrants 1 and 2 — anything in Quadrant 4 can usually wait. If something isn't urgent or important to you personally but affects a colleague, it's kind to help out where you can, so long as it doesn't eat into your own priorities. Keeping more of your time in Quadrant 2 also just makes for a calmer, less rushed day.",
+    source: "Urgent vs Important Matrix"
+  },
+  {
+    keywords: ["decision making","24 hour rule","make a decision","do first die later","when can i decide on my own","how are decisions made","decisions made here","how do we make decisions"],
+    answer: "Our approach to decisions starts with our core values — if something doesn't sit right with those, it shouldn't go ahead. For day-to-day feedback, we use a 24-hour rule on working days: if nobody's responded within 24 hours, it's fine to assume a yes and move forward. We also try to avoid things sitting in limbo — if you've finished your part, let the next person know so the loop can close (sent to the client, posted, uploaded, whatever it is).\nWe lean into a \"do first, fix later\" mindset — you don't need every task pre-approved, and it's genuinely okay to make a mistake and correct it afterwards. As a rough guide, you're safe to decide on your own for things that are routine/repeat tasks or genuinely low-risk. For anything that needs a group call, it typically comes down to the team lead's judgment, guided by our values and that quarter's goals.",
+    source: "Decision Making"
+  },
+  {
+    keywords: ["managing colleagues","workplace conflict avoid","cliques at work","office politics","personal topics work","respect coworkers","gossip at work"],
+    answer: "We hope for a workplace that's as free of politics as possible — if something's bothering you about a colleague, it's kinder (to everyone, including yourself) to say it directly rather than let it turn into gossip. It's natural to click more with some colleagues than others, and that's okay, just worth being mindful to keep things balanced with the rest of the team too.\nIf a newer colleague has a lot of questions, please do take the time to answer them — everyone starts somewhere. If it's eating into your own focus time, it's fine to ask them to batch their questions, block quiet time on your calendar, redirect anything you're not comfortable answering to your senior, or loop in your team lead if the questions never seem to end.\nWe also want everyone to feel they can just be themselves here — so we steer clear of discussing religion, politics, sexual preferences, or personal food choices at work, out of respect for everyone's different journeys.",
+    source: "Managing Colleagues"
+  },
+  {
+    keywords: ["resolve conflict","conflict with colleague","disagreement coworker","fight with colleague","argument with teammate","tension with colleague"],
+    answer: "Conflict happens anywhere people work closely together, and that's genuinely okay — it's much better talked through than bottled up. A few things that help: try to see it from the other person's point of view, remembering we all just want to do good work and get through the day. Apologising, even when it's hard, tends to soften things more than we expect. Talk it out directly, and if it'd help to have someone moderate, your team lead is happy to step in.\nMost of the time, working through a hard conversation actually leaves the relationship stronger than before. And to be clear: we take a real conflict that's gone unresolved for months seriously — if you're stuck on something, please don't sit with it alone, loop in your team lead sooner rather than later.",
+    source: "Conflict Resolution"
+  },
+  {
+    keywords: ["close the loop","follow through","ownership of task","proactive communication","task not done","over communicate"],
+    answer: "A task isn't really finished the moment you're done with your part — it's finished once the next person can pick it up smoothly. Since most of our work depends on other people down the line, it helps enormously to over-communicate: let people know what's done, what's next, and ask if there's anything else needed from you. If you're ever unsure about scope, hand-off, or deadline, it's always okay to ask your manager for clarity rather than guess.",
+    source: "Ownership & Follow-Through"
+  },
+  {
+    keywords: ["write a memo","memo format","when to write memo","why write memo","how to write memo"],
+    answer: "Memos are a nice way to think something through properly before a meeting, recap one afterwards, or communicate a policy or update clearly. They're generally used for: external meeting prep, brainstorm prep, meeting recaps, HR policy updates, sales updates, investor updates, leadership updates, or team lead reports.\nA simple structure that works well: open with context (what problem are we solving), lay out your rationale, then close with your ask or conclusion (what you need from the team, or what's been decided). Keep the language simple and clear — using something like ChatGPT to check grammar is totally fine, no need to make it sound fancier than it needs to be. And it's always worth running a draft by your team lead before sending it onward.",
+    source: "Writing Memos"
+  },
+  {
+    keywords: ["inbound sales","outbound sales","sales team","types of sales","sales structure"],
+    answer: "We have two types of sales here: inbound, where enquiries come to us (from our website, search, social media, or word-of-mouth) and the goal is answering them well, sending a proposal, and converting to a sale; and outbound, where we proactively choose and pursue the clients we want, often through conferences or LinkedIn, nurturing that relationship over time until it closes.\nThey call for pretty different strengths — outbound needs boldness to reach out to people, and real patience, since some relationships take months or years to build. Inbound leans more on strong writing, attention to detail, staying on top of social media trends, and reading what a client actually needs.",
+    source: "Sales Structure"
+  },
+  {
+    keywords: ["laptop care","take care of laptop","take care of my laptop","laptop policy","ios update permission","clean laptop","company laptop rules"],
+    answer: "A few habits that keep your laptop happy: wipe your hands before typing if they're oily (and dry them off after using hand cream!), shut it down fully once or twice a week rather than always just sleeping it, and avoid leaving the screen on overnight. Let the fan cool down before bagging it, and be gentle with the charging cables. If you notice any pixelation on screen, let HR know right away. A padded laptop bag helps, and it's best not to overstuff it with sharp objects like pens, or leave the laptop in a car.\nOne more thing: please hold off on updating iOS without checking with Jacky first. And if your time with us wraps up, giving the laptop a clean before returning it is always appreciated.",
+    source: "Laptop Care"
   }
 ];
 
-const FALLBACK = "I don't have a solid answer for that in the current policy doc — best to check directly with HR. (If you think this is something that should be documented, let HR know so it can be added here!)";
+const FALLBACK = "I don't have a good answer for that one yet — no worries at all, just reach out to HR directly and they'll be happy to help. And if it feels like something worth adding here for next time, do let HR know!";
 
 const STOPWORDS = new Set(["what","is","the","a","an","do","does","how","much","many","can","i","my","for","of","to","in","on","at","are","am","will","be","get","if","and","or","need","should","claim","claims","policy","about","me","please","tell","know","much's","whats"]);
 
@@ -574,11 +685,19 @@ function tokenize(str){
   return str.toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w => w && !STOPWORDS.has(w));
 }
 
+function escapeRegex(str){
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function scoreEntry(entry, queryTokens, rawQuery){
   let score = 0;
   const lowerQuery = rawQuery.toLowerCase();
   entry.keywords.forEach(kw => {
-    if(lowerQuery.includes(kw.toLowerCase())){
+    // Use word-boundary matching, not plain substring — otherwise short
+    // keywords like "ot" or "mc" can false-match inside unrelated words
+    // (e.g. "ot" inside "notes", "pto" inside "laptop").
+    const re = new RegExp("\\b" + escapeRegex(kw.toLowerCase()) + "\\b");
+    if(re.test(lowerQuery)){
       score += kw.split(" ").length * 3; // multi-word phrase match is a strong signal
     }
   });
@@ -624,8 +743,10 @@ const SUGGESTIONS = [
   "How do I apply for leave?",
   "Do I need to submit an invoice?",
   "When do I get paid?",
-  "What's the claim deadline?",
-  "What's the WFH policy?"
+  "What's the WFH policy?",
+  "How does moonlighting work?",
+  "What tools do we use?",
+  "How much is event attendance pay?"
 ];
 
 function escapeHtml(str){
@@ -681,7 +802,7 @@ function renderChips(){
 sendBtn.onclick = () => handleAsk(inputEl.value);
 inputEl.addEventListener("keydown", e => { if(e.key === "Enter") handleAsk(inputEl.value); });
 
-addMessage("Hi! I'm the SushiVid HR Assistant. Ask me things like overtime rates, leave entitlements, claim deadlines, invoicing, or WFH rules — pulled straight from the company policy doc.", "bot");
+addMessage("Hi, so glad you're here! I'm the SushiVid HR Assistant — ask me anything about pay, leave, claims, WFH, or how we like to work together as a team. Everything I share comes straight from our company policies and handbook, and if I don't know something, I'll gently point you to HR instead of guessing.", "bot");
 renderChips();
 
 // ---------------------------------------------------------------------
@@ -824,6 +945,7 @@ function getInvoiceState(){
     role: document.getElementById("inv_role").value.trim(),
     invoiceNo: document.getElementById("inv_no").value.trim(),
     invoiceDate: document.getElementById("inv_date").value,
+    ic: document.getElementById("inv_ic").value.trim(),
     bankAccName: document.getElementById("inv_bankAccName").value.trim(),
     accountNumber: document.getElementById("inv_accNo").value.trim(),
     bankName: document.getElementById("inv_bankName").value.trim(),
@@ -846,7 +968,8 @@ function downloadTextFallback(s, total){
     "Address: 44A, Jalan 52/4, 46200 Petaling Jaya, Selangor",
     "Email: armand@sushivid.com", "",
     `Invoice No: ${s.invoiceNo}    Date: ${s.invoiceDate}`,
-    `Your Name: ${s.name}    Role: ${s.role}`, "",
+    `Your Name: ${s.name}    Role: ${s.role}`,
+    `IC Number: ${s.ic || "(fill in if first invoice)"}`, "",
     "No | Description | Qty | Unit Price (RM) | Amount (RM)"
   ];
   items.forEach((it, i) => {
@@ -917,7 +1040,12 @@ function downloadInvoice(){
   y += 14;
   doc.setFont("helvetica", "normal");
   doc.text(`Role / Department: ${s.role || ""}`, marginX, y);
-  y += 18;
+  y += 14;
+  if(s.ic){
+    doc.text(`IC Number: ${s.ic}`, marginX, y);
+    y += 14;
+  }
+  y += 4;
 
   const body = items.map((it, i) => {
     const amt = (it.qty * it.unitPrice).toFixed(2);
@@ -977,7 +1105,8 @@ function draftEmail(){
     `Please find my invoice details below (see attached file):`, ``,
     ...lines, ``,
     `Grand Total: RM${total.toFixed(2)}`, ``,
-    `(Remember to cc your team lead before sending!)`, ``,
+    s.ic ? `IC Number: ${s.ic}` : `IC Number: (first invoice - please add your IC here if you haven't shared it with Armand before)`, ``,
+    `(Remember to cc your team lead before sending, and attach receipts where applicable!)`, ``,
     `Thanks,`,
     s.name || ""
   ].join("\n"));
