@@ -320,6 +320,7 @@
 
   /* --- Onboarding tab --- */
   #tab-onboard{overflow-y:auto;}
+  #tab-offboard{overflow-y:auto;}
   .onboard-chat{
     max-width:720px;
     margin:0 auto;
@@ -440,6 +441,7 @@
     <div class="tabbtn active" id="navAsk" onclick="showTab('ask')">Ask HR</div>
     <div class="tabbtn" id="navBuilder" onclick="showTab('builder')">Fill My Invoice / Claim</div>
     <div class="tabbtn" id="navOnboard" onclick="showTab('onboard')">New Employee Onboarding</div>
+    <div class="tabbtn" id="navOffboard" onclick="showTab('offboard')">Employee Offboarding</div>
   </div>
 </div>
 
@@ -466,6 +468,14 @@
   <div id="onboardInputBar" class="chat-inputbar">
     <input type="text" id="onboardInput" placeholder="Pick an option above..." autocomplete="off" disabled>
     <button id="onboardSendBtn" disabled>Send</button>
+  </div>
+</div>
+
+<div id="tab-offboard" class="tabpanel">
+  <div id="offboardChat" class="onboard-chat"></div>
+  <div id="offboardInputBar" class="chat-inputbar">
+    <input type="text" id="offboardInput" placeholder="Pick an option above..." autocomplete="off" disabled>
+    <button id="offboardSendBtn" disabled>Send</button>
   </div>
 </div>
 
@@ -507,6 +517,11 @@ const KB = [
     keywords: ["working hours","office hours","start time","end time","lunch","core hours","schedule"],
     answer: "Standard hours are Monday–Friday, 9:00 AM–6:00 PM, with lunch from 12:30–1:30 PM.\nYou can request a permanent shift to different Core Hours (e.g. 7:30 AM–4:30 PM) via written notice to HR and your manager — this needs prior approval and can be revised every 6 months.",
     source: "Working Hours"
+  },
+  {
+    keywords: ["dress code","what to wear","attire","dress appropriately","office attire","event attire","client meeting dress","how should i dress"],
+    answer: "If you're just in the office, wear whatever you're comfortable in. If you're attending an event, or meeting a client or influencer, please dress appropriately for the occasion.",
+    source: "Dress Code"
   },
   {
     keywords: ["wfh","work from home","remote","remote work"],
@@ -745,9 +760,14 @@ const KB = [
     source: "Sales Structure"
   },
   {
-    keywords: ["laptop care","take care of laptop","take care of my laptop","laptop policy","ios update permission","clean laptop","company laptop rules"],
-    answer: "A few habits that keep your laptop happy: wipe your hands before typing if they're oily (and dry them off after using hand cream!), shut it down fully once or twice a week rather than always just sleeping it, and avoid leaving the screen on overnight. Let the fan cool down before bagging it, and be gentle with the charging cables. If you notice any pixelation on screen, let HR know right away. A padded laptop bag helps, and it's best not to overstuff it with sharp objects like pens, or leave the laptop in a car.\nOne more thing: please hold off on updating iOS without checking with Jacky first. And if your time with us wraps up, giving the laptop a clean before returning it is always appreciated.",
+    keywords: ["laptop care","take care of laptop","take care of my laptop","laptop policy","ios update permission","clean laptop","company laptop rules","computer habits","wires","charging cable","spilled water on laptop","software update laptop"],
+    answer: "A few habits that keep your laptop (and its cables) happy:\nPlease curl your wires properly every time you pack them up, rather than balling them up loose — it's much kinder to the cables.\nPlease use a padded laptop bag — we have spares at the office if you need one. It's also best not to overstuff it with sharp objects like pens.\nWipe your hands before typing if they're oily (and dry them off after using hand cream!).\nPlease don't leave your laptop in the car — if it's ever lost that way, you'll be responsible for replacing it 1-for-1.\nKeep water well away from your laptop. If you do spill something on or near it: turn off the laptop immediately, wipe dry whatever you can, and do a full shutdown — not just turning off the screen.\nPlease hold off on updating any software (including iOS/macOS) without checking with tech/Jacky first — some of our laptops are older and can't support the latest updates.\nA couple more habits: shut it down fully once or twice a week rather than always just sleeping it, avoid leaving the screen on overnight, and let the fan cool down before bagging it. If you notice any pixelation on screen, let HR know right away.\nAnd if your time with us wraps up, giving the laptop a clean before returning it is always appreciated.",
     source: "Laptop Care"
+  },
+  {
+    keywords: ["harassment","bullying","discrimination","workplace complaint","report harassment","grievance","feel unsafe","inappropriate behaviour","inappropriate behavior","careline","file a complaint","unfairly treated","hostile","report someone"],
+    answer: "If you're experiencing or witnessing harassment, bullying, discrimination, or anything that makes you feel unsafe or unfairly treated at work — by anyone, at any level — please reach out directly and confidentially to Wen at wen@sushivid.com. This is a separate channel from your usual team lead/Armand contact, and every report is taken seriously. You don't need to have all the details sorted out before reaching out — even a first message to start the conversation is enough.",
+    source: "Harassment & Grievance Careline"
   }
 ];
 
@@ -800,9 +820,11 @@ function showTab(name){
   document.getElementById("tab-ask").classList.toggle("active", name === "ask");
   document.getElementById("tab-builder").classList.toggle("active", name === "builder");
   document.getElementById("tab-onboard").classList.toggle("active", name === "onboard");
+  document.getElementById("tab-offboard").classList.toggle("active", name === "offboard");
   document.getElementById("navAsk").classList.toggle("active", name === "ask");
   document.getElementById("navBuilder").classList.toggle("active", name === "builder");
   document.getElementById("navOnboard").classList.toggle("active", name === "onboard");
+  document.getElementById("navOffboard").classList.toggle("active", name === "offboard");
   if(name === "onboard" && !onboardStarted){
     onboardStarted = true;
     startOnboarding();
@@ -810,6 +832,10 @@ function showTab(name){
   if(name === "builder" && !builderStarted){
     builderStarted = true;
     startBuilderChat();
+  }
+  if(name === "offboard" && !offboardStarted){
+    offboardStarted = true;
+    startOffboarding();
   }
 }
 
@@ -913,7 +939,7 @@ const PIN_KEY = "sushivid_invoice_pin_v1";
 // A shared team PIN gates every read/write so a random visitor with the
 // page's URL can't pull or overwrite anyone's bank/IC details.
 // ---------------------------------------------------------------------
-const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwq6prAjHmZCgLFajbpQdzrtvQPrO2_B8s8ik4JqgXVWyk7K3_c3FJdemTIiFTu4YQI/exec";
+const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbwnQ9thz8opUgQNwgh0Zz_12gVBqNRF-cuA6dH13101FgFrBcmtB_QaTYTLAotRJ9Ao/exec";
 
 function sheetConfigured(){
   return SHEET_API_URL && !SHEET_API_URL.includes("PASTE_YOUR");
@@ -944,6 +970,26 @@ async function sheetSave(data, pin){
       action: "save", pin,
       name: data.name || "", role: data.role || "", ic: data.ic || "",
       bankAccName: data.bankAccName || "", accountNumber: data.accountNumber || "", bankName: data.bankName || ""
+    });
+    const res = await fetch(`${SHEET_API_URL}?${params.toString()}`);
+    return await res.json();
+  } catch(e){
+    return { error: "network" };
+  }
+}
+
+async function sheetSaveOffboarding(data, pin){
+  try {
+    const params = new URLSearchParams({
+      action: "saveOffboarding", pin,
+      name: data.name || "", role: data.role || "", lastDay: data.lastDay || "",
+      handoverLinks: data.handoverLinks || "",
+      handoverItemsJson: JSON.stringify(data.handoverItems || []),
+      testimonial: data.testimonial || "",
+      feedbackOffice: data.feedbackOffice || "",
+      feedbackTeam: data.feedbackTeam || "",
+      feedbackSuperior: data.feedbackSuperior || "",
+      glassdoorWilling: data.glassdoorWilling ? "Yes" : "No"
     });
     const res = await fetch(`${SHEET_API_URL}?${params.toString()}`);
     return await res.json();
@@ -2103,7 +2149,8 @@ function onboardHrAssistantIntro(){
     "Sick leave, maternity/paternity leave, compassionate & marriage leave",
     "Event attendance pay & work trip allowances",
     "Meeting prep, calendar habits, decision-making & conflict resolution",
-    "Company tools (Slack, WhatsApp, Notion, Sapotmou, DingTalk, Canva, Capcut)"
+    "Company tools (Slack, WhatsApp, Notion, Sapotmou, DingTalk, Canva, Capcut)",
+    "Reporting harassment or anything that doesn't feel right at work"
   ]);
   postOnboardHTML(`
     <h4>Meet Haru Chan — the "Ask HR" Tab</h4>
@@ -2159,15 +2206,20 @@ function onboardStep3(){
     <h4>Step 3 of 3 — Life Around the Office</h4>
     <p>Almost done! Since we're a small team sharing a small space, a few things that help keep it pleasant for everyone:</p>
     <ol>
-      <li>Please don't toss trash if the bin has no liner, or if it's overflowing — just pop in a new liner. After washing your dishes, don't leave anything sitting in the sink. And in the washroom, please treat it like home: clean up after yourself, and keep the toilet floor dry.</li>
+      <li>Always be happy to pitch in — if the bin's full, volunteer to pop in a new liner rather than adding to an overflowing one. After washing your dishes, don't leave anything sitting in the sink. And in the washroom, please treat it like home: clean up after yourself, and keep the toilet floor dry.</li>
+      <li>For our female colleagues: please dispose of sanitary waste using the small bags provided in the washroom, and tie them tightly before binning — it keeps things odour-free for everyone else using the space.</li>
       <li>Turn off electrical appliances when they're not in use.</li>
       <li>If you're the only one in the office, please don't step out and leave the place unattended.</li>
       <li>No smoking in the office or corridors — the corridors don't ventilate well.</li>
       <li>Please don't leave food out in the open, it tends to invite pests.</li>
+      <li>When reheating food in the microwave, please use a cover — it stops splatter and keeps the microwave clean for the next person.</li>
+      <li>If you're keeping food in the office fridge, please make sure to clear it out by the time your time at SushiVid ends.</li>
       <li>Please don't leave the bidet running after use — it's an older building and the water system isn't built for that kind of pressure.</li>
       <li>A wipe of the whiteboard after use goes a long way for the next person.</li>
+      <li>We're a small, close space, so a couple of gentle asks: please keep perfume, cologne, or deodorant on the lighter side — a few of our team leads have allergies to strong scents. And on a similar note, please do keep on top of personal hygiene so it stays pleasant for whoever's sitting next to you. Little things like this go a long way in a shared space.</li>
       <li>And please take good care of our equipment — here's a quick guide: ${kbAnswer("Laptop Care")}</li>
     </ol>
+    <p style="margin-top:14px;">One more important thing: if anything ever happens at work that makes you feel harassed, unsafe, or unfairly treated — by anyone, at any level — please reach out directly and confidentially to Wen at <strong>wen@sushivid.com</strong>. This is separate from your usual channels and goes straight to her.</p>
     <div class="onboard-btn-row"><button class="onboard-btn" onclick="onboardEthicsAck()">I've read through this ✅</button></div>
   `);
 }
@@ -2208,6 +2260,322 @@ function onboardFinish(){
     <p>One last click to let Armand and Wen know you've completed onboarding, so it's on record:</p>
     <div class="onboard-btn-row"><a class="onboard-btn" href="mailto:armand@sushivid.com?cc=yuhwenfoong@gmail.com&subject=${subject}&body=${body}" style="text-decoration:none;display:inline-block;">Send Onboarding Confirmation</a></div>
     <p style="margin-top:12px;font-size:12.5px;color:var(--grey-dark);">Whenever you have questions later, just head back to the Ask HR tab and chat with Haru Chan — happy to help anytime.</p>
+  `);
+}
+
+// ---------------------------------------------------------------------
+// EMPLOYEE OFFBOARDING — same true-chat pattern as onboarding: a shared
+// input bar for free-text answers, quick-reply buttons for choices, and
+// a proper handover checklist before someone leaves. Since this is a
+// static page with no database, the completed handover (links, who
+// they're for, testimonial, feedback) gets emailed to Wen as the record.
+// Feedback about a direct superior is intentionally sent to Wen only
+// (not cc'd to the team), so employees can be honest.
+// ---------------------------------------------------------------------
+const GLASSDOOR_URL = "PASTE_YOUR_GLASSDOOR_COMPANY_REVIEW_URL_HERE";
+
+let offboardStarted = false;
+const offboardChat = document.getElementById("offboardChat");
+const offboardInputEl = document.getElementById("offboardInput");
+const offboardSendBtn = document.getElementById("offboardSendBtn");
+
+const offboarding = {
+  name: "",
+  role: "",
+  lastDay: "",
+  handoverItems: [], // { link, description, forWhom }
+  testimonial: "",
+  feedbackOffice: "",
+  feedbackTeam: "",
+  feedbackSuperior: "",
+  glassdoorWilling: false
+};
+
+function postOffboardHTML(html, who){
+  const div = document.createElement("div");
+  div.className = "onboard-msg" + (who === "user" ? " user" : "");
+  div.innerHTML = html;
+  offboardChat.appendChild(div);
+  offboardChat.scrollTop = offboardChat.scrollHeight;
+  return div;
+}
+
+function offboardSetInputEnabled(enabled, placeholder){
+  offboardInputEl.disabled = !enabled;
+  offboardSendBtn.disabled = !enabled;
+  offboardInputEl.placeholder = placeholder || (enabled ? "Type your answer..." : "Pick an option above...");
+  if(enabled){ offboardInputEl.value = ""; offboardInputEl.focus(); }
+}
+
+let offboardAwaitingCallback = null;
+
+function offboardAsk(promptHtml, placeholder, callback){
+  postOffboardHTML(promptHtml);
+  offboardAwaitingCallback = callback;
+  offboardSetInputEnabled(true, placeholder);
+}
+
+function offboardSubmitAnswer(){
+  if(offboardAwaitingCallback === null) return;
+  const val = offboardInputEl.value.trim();
+  postOffboardHTML(val ? escapeHtml(val) : "(skipped)", "user");
+  const cb = offboardAwaitingCallback;
+  offboardAwaitingCallback = null;
+  offboardSetInputEnabled(false);
+  cb(val);
+}
+
+offboardSendBtn.onclick = offboardSubmitAnswer;
+offboardInputEl.addEventListener("keydown", e => { if(e.key === "Enter") offboardSubmitAnswer(); });
+
+function offboardAskSequence(steps, onComplete, index){
+  index = index || 0;
+  if(index >= steps.length){ onComplete(); return; }
+  const step = steps[index];
+  offboardAsk(step.prompt, step.placeholder, (val) => {
+    if(step.required && !val){
+      postOffboardHTML(`<p>${step.requiredMsg || "Just need an answer here to keep going — mind trying again?"}</p>`);
+      offboardAskSequence(steps, onComplete, index);
+      return;
+    }
+    step.onAnswer(val);
+    offboardAskSequence(steps, onComplete, index + 1);
+  });
+}
+
+function startOffboarding(){
+  offboardAsk(`
+    <p>Hi, I'm Haru Chan. Before you head off, let's make sure everything's handed over properly — this'll just take a few minutes.</p>
+    <p>What's your name?</p>
+  `, "e.g. Jane Doe", (name) => {
+    if(!name){
+      postOffboardHTML(`<p>Just need your name to get started — mind trying again?</p>`);
+      startOffboarding();
+      return;
+    }
+    offboarding.name = name;
+    offboardAskRole();
+  });
+}
+
+function offboardAskRole(){
+  offboardAsk("What's your role or department?", "e.g. Content Executive", (role) => {
+    offboarding.role = role;
+    offboardAskLastDay();
+  });
+}
+
+function offboardAskLastDay(){
+  offboardAsk("What's your last working day? (e.g. 2026-07-31, or type \"today\")", "YYYY-MM-DD or today", (val) => {
+    offboarding.lastDay = /^today$/i.test(val) ? new Date().toISOString().slice(0, 10) : val;
+    offboardHandoverIntro();
+  });
+}
+
+// ---- Handover links (repeatable, mirrors the invoice builder's
+// add-another-item pattern) ----
+function offboardHandoverIntro(){
+  postOffboardHTML(`
+    <p>Let's go through your handover. Do you have any links to hand over — spreadsheets, drive folders, docs, drafts, anything a teammate or client might need after you're gone?</p>
+    <p><strong>Before you paste any links:</strong> please double-check the sharing settings are set to open access (e.g. "Anyone with the link can view") — not restricted to just you. If access is locked down, whoever it's handed over to won't be able to open it.</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="offboardHandoverAnswer(true)">Yes, I have some</button>
+      <button class="onboard-btn secondary" onclick="offboardHandoverAnswer(false)">No links to hand over</button>
+    </div>
+  `);
+}
+
+function offboardHandoverAnswer(hasLinks){
+  postOffboardHTML(hasLinks ? "Yes, I have some" : "No links to hand over", "user");
+  if(!hasLinks){
+    offboardAskTestimonial();
+    return;
+  }
+  offboardAddHandoverItem();
+}
+
+let offboardPendingHandoverItem = null;
+
+function offboardAddHandoverItem(){
+  offboardPendingHandoverItem = {};
+  offboardAskSequence([
+    {
+      prompt: "Paste the link.", placeholder: "e.g. https://docs.google.com/...",
+      required: true, requiredMsg: "I'll need the actual link to log this one — mind pasting it in?",
+      onAnswer: v => offboardPendingHandoverItem.link = v
+    },
+    {
+      prompt: "What is it / what does it lead to?", placeholder: "e.g. Draft video edits for Brand X campaign",
+      required: true, requiredMsg: "What does this link lead to?",
+      onAnswer: v => offboardPendingHandoverItem.description = v
+    },
+    {
+      prompt: "Who's it for, or whose task was this? (e.g. \"Wen\", \"draft for Carmen\")", placeholder: "e.g. Wen",
+      onAnswer: v => offboardPendingHandoverItem.forWhom = v
+    }
+  ], () => {
+    offboarding.handoverItems.push(offboardPendingHandoverItem);
+    offboardPendingHandoverItem = null;
+    offboardHandoverItemAdded();
+  });
+}
+
+function offboardHandoverItemAdded(){
+  postOffboardHTML(`
+    <p>Got it, logged (${offboarding.handoverItems.length} link${offboarding.handoverItems.length === 1 ? "" : "s"} so far). Any other links to add?</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="offboardAddHandoverItem()">Add another</button>
+      <button class="onboard-btn secondary" onclick="offboardHandoverDone()">That's all</button>
+    </div>
+  `);
+}
+
+function offboardHandoverDone(){
+  postOffboardHTML("That's all", "user");
+  offboardAskTestimonial();
+}
+
+// ---- Testimonial & feedback (all optional — type "skip" to move on) ----
+function offboardAskTestimonial(){
+  offboardAsk(`
+    <p>Thanks for handing that over properly — it really helps the next person.</p>
+    <p>Would you like to leave a short testimonial about your time at SushiVid? (Totally optional — type "skip" if you'd rather not.)</p>
+  `, "Type your testimonial, or \"skip\"", (val) => {
+    offboarding.testimonial = /^skip$/i.test(val) ? "" : val;
+    offboardAskFeedbackOffice();
+  });
+}
+
+function offboardAskFeedbackOffice(){
+  offboardAsk("Any feedback about the office / workspace itself? (Optional — type \"skip\" to move on.)", "Type your feedback, or \"skip\"", (val) => {
+    offboarding.feedbackOffice = /^skip$/i.test(val) ? "" : val;
+    offboardAskFeedbackTeam();
+  });
+}
+
+function offboardAskFeedbackTeam(){
+  offboardAsk("Any feedback about the team? (Optional — type \"skip\" to move on.)", "Type your feedback, or \"skip\"", (val) => {
+    offboarding.feedbackTeam = /^skip$/i.test(val) ? "" : val;
+    offboardAskFeedbackSuperior();
+  });
+}
+
+function offboardAskFeedbackSuperior(){
+  offboardAsk("And any feedback about your direct superior? This is confidential and goes straight to Wen only. (Optional — type \"skip\" to move on.)", "Type your feedback, or \"skip\"", (val) => {
+    offboarding.feedbackSuperior = /^skip$/i.test(val) ? "" : val;
+    offboardAskGlassdoor();
+  });
+}
+
+function offboardAskGlassdoor(){
+  postOffboardHTML(`
+    <p>Last one — would you be willing to leave us a review on Glassdoor? It genuinely helps us hire well.</p>
+    <div class="onboard-btn-row">
+      <button class="onboard-btn" onclick="offboardGlassdoorAnswer(true)">Sure, happy to</button>
+      <button class="onboard-btn secondary" onclick="offboardGlassdoorAnswer(false)">Not this time</button>
+    </div>
+  `);
+}
+
+function offboardGlassdoorAnswer(willing){
+  postOffboardHTML(willing ? "Sure, happy to" : "Not this time", "user");
+  offboarding.glassdoorWilling = willing;
+  if(willing){
+    postOffboardHTML(`
+      <p>Really appreciate it! Here's the link whenever you're ready:</p>
+      <div class="onboard-btn-row"><a class="onboard-btn" href="${GLASSDOOR_URL}" target="_blank" style="text-decoration:none;display:inline-block;">Leave a Glassdoor Review</a></div>
+    `);
+  }
+  offboardFinish();
+}
+
+function offboardHandoverLinksText(){
+  return offboarding.handoverItems.length
+    ? offboarding.handoverItems.map((it, i) => `${i + 1}. ${it.link} — ${it.description}${it.forWhom ? ` (for ${it.forWhom})` : ""}`).join("\n")
+    : "(no links handed over)";
+}
+
+// Saves the offboarding record to the central Google Sheet (Offboarding
+// tab), same shared-PIN pattern as the invoice builder's profile sync.
+let offboardCentralSynced = false;
+
+async function offboardSyncCentral(){
+  if(!sheetConfigured()) return;
+  const payload = {
+    name: offboarding.name, role: offboarding.role, lastDay: offboarding.lastDay,
+    handoverItems: offboarding.handoverItems,
+    handoverLinks: offboardHandoverLinksText(),
+    testimonial: offboarding.testimonial,
+    feedbackOffice: offboarding.feedbackOffice,
+    feedbackTeam: offboarding.feedbackTeam,
+    feedbackSuperior: offboarding.feedbackSuperior,
+    glassdoorWilling: offboarding.glassdoorWilling
+  };
+  const cachedPin = getSavedPin();
+  if(cachedPin){
+    postOffboardHTML(`<p style="font-size:12px;color:var(--grey-dark);">Saving your handover and sending links to the right people...</p>`);
+    const result = await sheetSaveOffboarding(payload, cachedPin);
+    offboardReportSyncResult(result);
+    return;
+  }
+  return new Promise(resolve => {
+    offboardAsk("Quick one — what's the shared team PIN? This saves your handover centrally and automatically emails each link to the right person. Type \"skip\" to skip and just use the email below instead.", "e.g. 1234 or skip", async (pin) => {
+      if(!pin || /^skip$/i.test(pin)){
+        postOffboardHTML(`<p>No worries — skipping the central sheet, your handover email below still has everything.</p>`);
+        resolve();
+        return;
+      }
+      savePin(pin);
+      const result = await sheetSaveOffboarding(payload, pin);
+      offboardReportSyncResult(result);
+      resolve();
+    });
+  });
+}
+
+function offboardReportSyncResult(result){
+  if(result && result.error === "Invalid PIN"){
+    clearSavedPin();
+    postOffboardHTML(`<p style="font-size:12px;color:var(--grey-dark);">(That PIN didn't match, so I couldn't save to the central sheet — the email below still has everything.)</p>`);
+  } else if(!result || result.error){
+    postOffboardHTML(`<p style="font-size:12px;color:var(--grey-dark);">(Couldn't reach the central sheet just now — the email below still has everything.)</p>`);
+  } else {
+    offboardCentralSynced = true;
+    postOffboardHTML(`<p style="font-size:12px;color:var(--grey-dark);">(Saved to the central sheet ✅ — handover links have been emailed straight to whoever they're tagged for, and Wen's been sent the full summary.)</p>`);
+  }
+}
+
+async function offboardFinish(){
+  offboardSetInputEnabled(false);
+  await offboardSyncCentral();
+
+  const now = new Date().toLocaleString();
+  const handoverText = offboardHandoverLinksText();
+
+  const subject = encodeURIComponent(`Offboarding - ${offboarding.name}`);
+  const body = encodeURIComponent([
+    `Employee offboarding completed via Haru Chan, SushiVid's HR Assistant.`, ``,
+    `Name: ${offboarding.name}`,
+    `Role: ${offboarding.role || "(not provided)"}`,
+    `Last working day: ${offboarding.lastDay || "(not provided)"}`,
+    `Completed at: ${now}`, ``,
+    `Handover links:`,
+    handoverText, ``,
+    `Testimonial: ${offboarding.testimonial || "(none given)"}`, ``,
+    `Feedback - Office: ${offboarding.feedbackOffice || "(none given)"}`,
+    `Feedback - Team: ${offboarding.feedbackTeam || "(none given)"}`,
+    `Feedback - Direct Superior: ${offboarding.feedbackSuperior || "(none given)"}`, ``,
+    `Willing to leave a Glassdoor review: ${offboarding.glassdoorWilling ? "Yes" : "No"}`
+  ].join("\n"));
+
+  const intro = offboardCentralSynced
+    ? `<p>That's everything, ${escapeHtml(offboarding.name)} — thank you for handing things over so properly, and for your time at SushiVid. 💛</p><p>Your handover links have already been sent to the right people, and Wen already has the full summary — nothing more you need to do. Here's a copy of that summary email too, in case you'd like to keep one:</p>`
+    : `<p>That's everything, ${escapeHtml(offboarding.name)} — thank you for handing things over so properly, and for your time at SushiVid. 💛</p><p>One last click to send this handover summary to Wen, so it's on record:</p>`;
+
+  postOffboardHTML(`
+    ${intro}
+    <div class="onboard-btn-row"><a class="onboard-btn" href="mailto:wen@sushivid.com?subject=${subject}&body=${body}" style="text-decoration:none;display:inline-block;">${offboardCentralSynced ? "Copy Offboarding Summary Email" : "Send Offboarding Summary"}</a></div>
+    <p style="margin-top:12px;font-size:12.5px;color:var(--grey-dark);">Wishing you all the best ahead.</p>
   `);
 }
 </script>
